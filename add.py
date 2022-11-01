@@ -40,7 +40,7 @@ print("\n\n")
 
 # manipulate database
 
-usage = "Usage: add_songs.py 'add_songs'"
+usage = "Usage: add.py 'add'"
 db = None
 
 try:
@@ -65,9 +65,6 @@ try:
     if change_day > last_day:
         change_day = change_day - last_day
         change_month = month + 1
-        
-        print(change_day)
-        print(change_month)
         d_compare = d_compare.replace(day = change_day, month = change_month)
     else:
         d_compare = d_compare.replace(day = change_day)
@@ -101,10 +98,18 @@ try:
         
         i = 0
         while i < numSongs: #Loop through each song and artists
+            if "'" in songName[i]:
+                songName[i] = songName[i].replace("'", "''")	# if an apostrophe is used as part of the song, replace it as '' to be used for queries
+            songName[i] = songName[i].strip()
+            
+            if "'" in artistName[i]:
+                artistName[i] = artistName[i].replace("'", "''")    # if an apostrophe is used as part of the artist name, replace it as '' to be used for queries
+            artistName[i] = artistName[i].strip()
+            
             qry = f"""
             SELECT Songs.id, Songs.title, Artists.name 
             FROM Songs, Artists 
-            WHERE Songs.title = '{songName[i]}' 
+            WHERE Songs.title = '{songName[i]}'
             AND Artists.name = '{artistName[i]}' 
             AND Songs.artistid = Artists.id
             """

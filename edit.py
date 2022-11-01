@@ -107,7 +107,16 @@ try:
                 case '2':   #Add Song
                     os.system(f"python3 sunday_search.py {date}")   # Run Sunday_search.py to show the current information that is stored in the database.
                     new_title = input("What's the name of the new song you would like to insert?\n")    # Title of the song
-                    new_artist = input("Who's the artist for the replacement song?\n")  # Artist of the Song
+                    new_artist = input("Who's the artist for the new song?\n")  # Artist of the Song
+                    
+                    if "'" in new_title:
+                        new_title = new_title.replace("'", "''")	# if an apostrophe is used as part of the song, replace it as '' to be used for queries
+                    new_title = new_title.strip()
+            
+                    if "'" in new_artist:
+                        new_artist = new_artist.replace("'", "''")    # if an apostrophe is used as part of the artist name, replace it as '' to be used for queries
+                    new_artist = new_artist.strip()
+                    
                     
                     qry = f"SELECT Songs.id FROM Songs, Artists WHERE Songs.title = '{new_title}' AND Artists.name = '{new_artist}' AND Songs.artistid = Artists.id"
                     cur.execute(qry)
@@ -132,8 +141,8 @@ try:
                             db.commit() # Add new artist into the database
                             print(f"{new_artist} ({aID}) added as a new artist in the database\n")  # Notifies the user that a new artist has been added to the database
                         qry = f"""
-                        VALUES ({sID}, '{new_title}', '{aID}')
                         INSERT INTO Songs (ID, Title, ArtistID)
+                        VALUES ({sID}, '{new_title}', '{aID}')
                         """
                         cur.execute(qry)
                         db.commit() # Add new song into the database with the relevant artistID
@@ -146,10 +155,18 @@ try:
                     db.commit() # add new value into Sunday_songs with the given songID
                     print(f"{new_title} by {new_artist} added\n")   # Notifies the user that the song with the relevant artist has been added to the database for the specific Sunday.
                     os.system(f"python3 sunday_search.py {date}")   # Run Sunday_search.py to allow the user to know that the Sunday has actually been updated with this function. 
-                case '3':
+                case '3':   # Remove Song
                     os.system(f"python3 sunday_search.py {date}")   # Run Sunday_search.py to show the current information that is stored in the database.
                     r_title = input("What's the name of the song you would like to remove?\n")  # Asks for the song you would like to remove
                     r_artist = input("Who's the artist of the song?\n") # Asks for the artist of the song you would like to remove
+                    if "'" in r_title:
+                        r_title = r_title.replace("'", "''")	# if an apostrophe is used as part of the song, replace it as '' to be used for queries
+                    r_title = r_title.strip()
+            
+                    if "'" in r_artist:
+                        r_artist = r_artist.replace("'", "''")    # if an apostrophe is used as part of the artist name, replace it as '' to be used for queries
+                    r_artist = r_artist.strip()
+                    
                     qry = f"""
                     SELECT Songs.id FROM Songs, Artists WHERE Songs.title = '{r_title}' AND Artists.name = '{r_artist}' AND Songs.artistid = Artists.id
                     """
