@@ -1,16 +1,11 @@
 import sys
 import psycopg2
 import datetime
-import calendar
+
 
 ### Sunday Search ###
 #   Given the date as an argument
 #   Returns the Sermon Title, Passage and Songs with Artists to the user
-
-# define any local helper functions here
-
-
-
 
 # set up some globals
 
