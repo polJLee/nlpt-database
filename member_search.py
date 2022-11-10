@@ -1,5 +1,4 @@
 import sys
-
 import psycopg2
 import operator
 

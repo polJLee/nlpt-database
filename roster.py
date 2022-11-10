@@ -3,8 +3,7 @@
 import calendar
 import psycopg2
 import datetime
-import subprocess
-import sys
+
 # set up some globals
 
 usage = "Usage: roster.py 'roster'"
@@ -94,16 +93,24 @@ for i in range(start.day, end.day): # Loop through start to end date of the mont
     if d.isoweekday() == 7:
         numWeeks += 1
     i += 1
-if (Month == int(Easter[0][4]) or Month == int(Easter[1][4]) or Month == 12):   # add an extra day for the given condtion: Easter, Christmas and Wintercon   //Needs major redesign//   • What if Christmas falls on a Sunday
+if (Month == int(Easter[1][4])):   # add an extra day if Good Friday occurs on this month
     numWeeks += 1
+if (Month == 12 and (today.replace(month=12,day=25).isoweekday()) != 7):   # add an extra day if Christmas is included in the roster AND Christmas does not fall on a Sunday
+    numWeeks += 1
+
+
+
 if (Month == 6 or Month == 7):
     confirmation = input("is Wintercon happening this month?\n(y/n)\n") 
     if confirmation == 'y':
-        numWeeks += 3   # Given that the services on Wintercon is always Friday Night, Saturday Morning, Saturday Night, Sunday Service
+        add = int(input("How many additional services are there for this month?"))  
+        numWeeks += add   # add additional service number into the numWeek variable
+
+
+
 
 # manipulate database
 try:
-    
     db = psycopg2.connect("dbname = nlpt22")
     cur = db.cursor()
     cur.execute(f"SELECT month FROM Roster WHERE month = '{Months[Month]}'")
