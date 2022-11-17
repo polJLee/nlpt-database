@@ -1,9 +1,8 @@
 import sys
 import psycopg2
-import os
 import datetime
 from sundays import sundays
-import calendar
+
 
 usage = "Usage: Search_Roster.py 'search_roster'"
 db = None

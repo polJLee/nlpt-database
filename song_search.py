@@ -56,8 +56,7 @@ try:
         artistinfo = cur.fetchall() # Fetch the Artist of the song
 
         if not sundayinfo:  # if the song is not in the database
-            print(f"\nNo songs matching | {instring}|")
-            print("===============")
+            print(f"\nNo songs matching | {instring}|\n===============")
         else:   # if the song exists in the database
             if len(artistinfo) == 1:    # if there is only one artist for the song
                 print(f"\n{instring} by {artistinfo[0][0]}\n")
