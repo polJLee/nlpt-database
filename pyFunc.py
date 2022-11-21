@@ -933,3 +933,116 @@ def roster_search(txt):
         if db:
             db.close()
 
+def show_sunday():
+    usage = "Usage: sunday_list.py 'sunday_list'"
+    db = None
+    returnString = "\n"
+
+    try:
+        db = psycopg2.connect("dbname=nlpt22")
+        cur = db.cursor()
+        cur.execute("SELECT date FROM Sundays GROUP BY date, sundays.id ORDER BY sundays.id")
+        info = cur.fetchall()
+        
+        for item in info:
+            returnString += sunday_search(item[0]) + '\n'
+            
+        returnString += f"There are {len(info)} Sundays in the database"
+        
+        return returnString
+    except psycopg2.Error as err:
+        print("DB error: ", err)
+    finally:
+        if db:
+            db.close()
+
+
+
+
+def month_search(txt):
+    usage = "Usage: 'month_search'"
+    db = None
+    
+    # Grab information related to the Month of the Roster
+    Months = {1: "January",
+            2: "Februrary",
+            3: "March",   #Good Friday
+            4: "April",   #Good Friday
+            5: "May",
+            6: "June",    #Wintercon
+            7: "July",    #Wintercon
+            8: "August",
+            9: "September",
+            10: "October",
+            11: "November",
+            12: "December"    #Christmas
+            }
+    Roles = ["Song Leader 1", "Song Leader 2", "Vocal", "Guitar 1", "Guitar 2", "Keys", "Drum", "Pads"]
+
+
+    today = datetime.date.today()
+    month = Months[today.month] #String format of the Month -> January, February, etc..
+
+    try:
+        db = psycopg2.connect("dbname=nlpt22")
+        cur = db.cursor()
+        if len(txt) == 0:   # if there was no name included as an argument
+            returnString = "No name included"
+            return returnString
+        name = txt
+        sList = sundays(today.month)
+        
+        cur.execute(f"SELECT MIN(id) FROM Roster WHERE month = '{month}'")
+        minID = int(cur.fetchone()[0])
+        
+        qry = f"""
+        SELECT id, song_leader1, song_leader2, vocal, guitar_1, guitar_2, keys, drum, pads 
+        FROM roster where '{name}' in (song_leader1, song_leader2, vocal, guitar_1, guitar_2, keys, drum, pads) 
+        AND month = '{month}';
+        """
+        cur.execute(qry)
+        info = cur.fetchall()
+        if len(info) == 0:
+            returnString = f"\n{name} is not rostered for {month}"
+            return returnString
+        rostered_date = []
+        roster = []
+        d_day = []
+        
+        for item in info:
+            rosteredID = item[0]
+            id = rosteredID - minID
+            print(sList[id])
+            rostered_date.append(sList[id])
+            d_day.append((datetime.date.fromisoformat(sList[id]) - today).days)
+            list = []
+            for name in item[1:]:
+                name = name.strip()
+                list.append(name)
+            roster.append(list)
+
+        i = 0
+        returnString = ""
+        while i < len(rostered_date):
+            returnString += 15*' ' + rostered_date[i] + 5*" "
+            if d_day[i] < 0:
+                d_day[i] = -1*d_day[i]
+                returnString += f"{d_day[i]} days ago\n"
+            else:
+                returnString += f"in {d_day[i]} days\n"
+            j = 0
+            while j < len(Roles):
+                if roster[i][j] == '':
+                    j += 1
+                else:
+                    returnString += f"{Roles[j]} : {roster[i][j]}\n"
+                    j += 1
+            i += 1
+        
+        return returnString
+        
+    except psycopg2.Error as err:
+        print("DB error: ", err)
+    finally:
+        if db:
+            db.close()
