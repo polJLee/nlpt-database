@@ -5,7 +5,7 @@ SELECT Songs.title, Artists.name, count(songid) as num
 FROM Sunday_songs, Songs, Artists 
 WHERE Sunday_songs.songid = Songs.id 
 AND Artists.id = Songs.artistid
-GROUP BY Songs.title 
+GROUP BY Songs.title, Artists.name 
 HAVING count(songid) = (SELECT count(*) 
 						FROM Sunday_songs 
 						GROUP BY songid 
@@ -116,7 +116,7 @@ CREATE TABLE Members (
 );
 
 CREATE TABLE Roster(
-	ID int(8),
+	ID int,
 	Month character(9),
 	Song_Leader1 character(15),
 	Song_Leader2 character(15),
@@ -965,5 +965,11 @@ VALUES (9, 'Stella K', 'Keys');
 
 INSERT INTO Members (ID, Name, Role)
 VALUES (10, 'Una', 'Vocal');
+
+INSERT INTO MEMBERS (ID, Name, Role)
+VALUES (11, 'Salang', 'Vocal + Guitar');
+
+INSERT INTO MEMBERS (ID, Name, Role)
+VALUES (12, 'Josh', 'Vocal + Guitar');
 
 
