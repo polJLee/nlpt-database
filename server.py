@@ -4,8 +4,8 @@ from pyFunc import song_search, sunday_search, member_search, artist_search, ros
 from pyFunc import show_sunday
 
 # Defined Globals
-TEMPLATE_DIR = os.path.abspath('/Users/paul/Desktop/nlpt-database/templates')
-STATIC_DIR = os.path.abspath('/Users/paul/Desktop/nlpt-database/templates/static')
+TEMPLATE_DIR = os.path.abspath('/Users/paullee/Downloads/nlpt-database/templates')
+STATIC_DIR = os.path.abspath('/Users/paullee/Downloads/nlpt-database/templates/static')
 
 app = Flask(__name__, template_folder=TEMPLATE_DIR, static_folder=STATIC_DIR)
 
@@ -133,7 +133,7 @@ def sundays():
    </body>
 </html>"""
   
-  with open('/Users/paul/Desktop/nlpt-database/templates/sundays.html', 'w', encoding='utf-8') as f:
+  with open('/Users/paullee/Downloads/nlpt-database/templates/sundays.html', 'w', encoding='utf-8') as f:
     f.write(text1)
     f.write(text2)
     f.write(text3)
@@ -233,7 +233,7 @@ def search_result(searchResult):
 		 <script src="{{url_for('static',filename='script.js') }}"> </script>
 	  </body>
 	</html>"""
-  with open('/Users/paul/Desktop/nlpt-database/templates/search_result.html', 'w', encoding='utf-8') as f:
+  with open('/Users/paullee/Downloads/nlpt-database/templates/search_result.html', 'w', encoding='utf-8') as f:
     f.write(text1)
     f.write(text2)
     f.write(text3)
