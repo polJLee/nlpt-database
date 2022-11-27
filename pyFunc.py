@@ -964,7 +964,7 @@ def month_search(txt):
     db = None
     
     # Grab information related to the Month of the Roster
-    Months = {1: "January",
+    MonthsDict = {1: "January",
             2: "Februrary",
             3: "March",   #Good Friday
             4: "April",   #Good Friday
@@ -980,56 +980,46 @@ def month_search(txt):
     Roles = ["Song Leader 1", "Song Leader 2", "Vocal", "Guitar 1", "Guitar 2", "Keys", "Drum", "Pads"]
 
 
-    today = datetime.date.today()
-    month = Months[today.month] #String format of the Month -> January, February, etc..
+    if txt.isdigit():
+        txt = MonthsDict[txt]
+
 
     try:
         db = psycopg2.connect("dbname=nlpt22")
         cur = db.cursor()
         if len(txt) == 0:   # if there was no name included as an argument
-            returnString = "No name included"
+            returnString = "No month included"
             return returnString
-        name = txt
-        sList = sundays(today.month)
+        mList = list(MonthsDict.values())
         
-        cur.execute(f"SELECT MIN(id) FROM Roster WHERE month = '{month}'")
-        minID = int(cur.fetchone()[0])
+        print(mList)
+        mNum = int(mList.index(txt)) + 1
+        print(mNum)
+        sList = sundays(mNum)
         
         qry = f"""
-        SELECT id, song_leader1, song_leader2, vocal, guitar_1, guitar_2, keys, drum, pads 
-        FROM roster where '{name}' in (song_leader1, song_leader2, vocal, guitar_1, guitar_2, keys, drum, pads) 
-        AND month = '{month}';
+        SELECT song_leader1, song_leader2, vocal, guitar_1, guitar_2, keys, drum, pads 
+        FROM roster 
+        WHERE month = '{txt}';
         """
         cur.execute(qry)
         info = cur.fetchall()
         if len(info) == 0:
-            returnString = f"\n{name} is not rostered for {month}"
+            returnString = f"\n{txt} is not in the roster\n"
             return returnString
-        rostered_date = []
         roster = []
-        d_day = []
-        
+
         for item in info:
-            rosteredID = item[0]
-            id = rosteredID - minID
-            print(sList[id])
-            rostered_date.append(sList[id])
-            d_day.append((datetime.date.fromisoformat(sList[id]) - today).days)
             list = []
-            for name in item[1:]:
+            for name in item:
                 name = name.strip()
                 list.append(name)
             roster.append(list)
 
         i = 0
         returnString = ""
-        while i < len(rostered_date):
-            returnString += 15*' ' + rostered_date[i] + 5*" "
-            if d_day[i] < 0:
-                d_day[i] = -1*d_day[i]
-                returnString += f"{d_day[i]} days ago\n"
-            else:
-                returnString += f"in {d_day[i]} days\n"
+        while i < len(sList):
+            returnString += sList[i] + '\n'
             j = 0
             while j < len(Roles):
                 if roster[i][j] == '':
@@ -1046,3 +1036,5 @@ def month_search(txt):
     finally:
         if db:
             db.close()
+
+month_search('November')
