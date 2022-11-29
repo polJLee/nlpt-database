@@ -200,6 +200,7 @@ try:
             SELECT Song_leader2, COUNT(Song_leader2) 
             FROM Roster 
             WHERE Song_leader1 = '{instring}'
+            AND Song_leader2 != ''
             GROUP BY Song_leader2
             ORDER BY COUNT(Song_leader2) DESC
             """
@@ -250,6 +251,7 @@ try:
             SELECT Song_leader2, COUNT(Song_leader2)
             FROM Roster
             WHERE Vocal = '{instring}'
+            AND Song_leader2 != ''
             GROUP BY Song_leader2
             ORDER BY COUNT(Song_leader2) DESC
             """
@@ -280,6 +282,7 @@ try:
             SELECT Song_leader2, COUNT(Song_leader2) 
             FROM Roster 
             WHERE Song_leader1 = '{instring}'
+            AND Song_leader2 != ''
             GROUP BY Song_leader2
             ORDER BY COUNT(Song_leader2) DESC
             """
@@ -330,6 +333,7 @@ try:
             SELECT Song_leader2, COUNT(Song_leader2)
             FROM Roster
             WHERE Vocal = '{instring}'
+            AND Song_leader2 != ''
             GROUP BY Song_leader2
             ORDER BY COUNT(Song_leader2) DESC
             """
@@ -374,6 +378,7 @@ try:
             SELECT Song_leader2, COUNT(Song_leader2) 
             FROM Roster 
             WHERE Song_leader1 = '{instring}'
+            AND Song_leader2 != ''
             GROUP BY Song_leader2
             ORDER BY COUNT(Song_leader2) DESC
             """
@@ -424,6 +429,7 @@ try:
             SELECT Song_leader2, COUNT(Song_leader2)
             FROM Roster
             WHERE Vocal = '{instring}'
+            AND Song_leader2 != ''
             GROUP BY Song_leader2
             ORDER BY COUNT(Song_leader2) DESC
             """
@@ -492,8 +498,9 @@ try:
             qry = f"""
             SELECT Song_leader2, COUNT(Song_leader2)
             FROM Roster
-            WHERE Keys = '{instring}'
-            OR Pads = '{instring}'
+            WHERE (Keys = '{instring}'
+            OR Pads = '{instring}')
+            AND Song_leader2 != ''
             GROUP BY Song_leader2
             ORDER BY COUNT(Song_leader2) DESC
             """
@@ -558,6 +565,7 @@ try:
             SELECT Song_leader2, COUNT(Song_leader2) 
             FROM Roster 
             WHERE Drum = '{instring}'
+            AND Song_leader2 != ''
             GROUP BY Song_leader2
             ORDER BY COUNT(Song_leader2) DESC
             """
