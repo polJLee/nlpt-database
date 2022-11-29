@@ -942,8 +942,6 @@ def roster_search(txt):
          if db:
              db.close()
 
-
-
 def show_sunday():
     usage = "Usage: sunday_list.py 'sunday_list'"
     db = None
@@ -967,75 +965,37 @@ def show_sunday():
         if db:
             db.close()
 
-def show_sunday():
-    usage = "Usage: sunday_list.py 'sunday_list'"
-    db = None
-    returnString = "\n"
-
-    try:
-        db = psycopg2.connect("dbname=nlpt22")
-        cur = db.cursor()
-        cur.execute("SELECT date FROM Sundays GROUP BY date, sundays.id ORDER BY sundays.id")
-        info = cur.fetchall()
-        
-        for item in info:
-            returnString += sunday_search(item[0]) + '\n'
-            
-        returnString += f"There are {len(info)} Sundays in the database"
-        
-        return returnString
-    except psycopg2.Error as err:
-        print("DB error: ", err)
-    finally:
-        if db:
-            db.close()
-
-
-
-
-def month_search(txt):
+def month_roster_search(txt):
     usage = "Usage: 'month_search'"
     db = None
     
     # Grab information related to the Month of the Roster
-    MonthsDict = {1: "January",
-            2: "Februrary",
-            3: "March",   #Good Friday
-            4: "April",   #Good Friday
-            5: "May",
-            6: "June",    #Wintercon
-            7: "July",    #Wintercon
-            8: "August",
-            9: "September",
-            10: "October",
-            11: "November",
-            12: "December"    #Christmas
-            }
+    Months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
     Roles = ["Song Leader 1", "Song Leader 2", "Vocal", "Guitar 1", "Guitar 2", "Keys", "Drum", "Pads"]
-
-
-    if txt.isdigit():
-        txt = MonthsDict[txt]
 
 
     try:
         db = psycopg2.connect("dbname=nlpt22")
         cur = db.cursor()
-        if len(txt) == 0:   # if there was no name included as an argument
+        if len(txt) == 0:   # if there was no month included as an argument
             returnString = "No month included"
             return returnString
-        mList = list(MonthsDict.values())
         
-        print(mList)
-        mNum = int(mList.index(txt)) + 1
-        print(mNum)
-        sList = sundays(mNum)
-        
+        if txt.isdigit():
+            txt = int(txt)
+            sList = sundays(txt)
+            txt = txt - 1
+            mth = Months[txt]
+        elif txt in Months:
+            st = int(Months.index(txt)) + 1
+            sList = sundays(st)
+            mth = txt
+            
         qry = f"""
-        SELECT song_leader1, song_leader2, vocal, guitar_1, guitar_2, keys, drum, pads 
-        FROM roster 
-        WHERE month = '{txt}';
-        """
+            SELECT song_leader1, song_leader2, vocal, guitar_1, guitar_2, keys, drum, pads 
+            FROM roster 
+            WHERE month = '{mth}';
+            """
         cur.execute(qry)
         info = cur.fetchall()
         if len(info) == 0:
@@ -1064,6 +1024,7 @@ def month_search(txt):
             i += 1
         
         return returnString
+            
         
     except psycopg2.Error as err:
         print("DB error: ", err)

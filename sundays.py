@@ -11,7 +11,6 @@ def sundays(month):
     year = "2022"
     
     # instantiating the parameters
-    start = datetime.date(int(year), month, 1)
     i = 1
     list = []
     while i < calendar.monthrange(int(year), month)[1]:
