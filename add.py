@@ -63,8 +63,11 @@ try:
     d_compare = datetime.date(int('20'+last_sunday[0][6:8]), int(last_sunday[0][3:5]), int(last_sunday[0][0:2]))
     change_day = int(last_sunday[0][0:2]) + 7
     if change_day > last_day:
-        change_day = change_day - last_day
-        change_month = month + 1
+        change_day = change_day - calendar.monthrange(year, month-1)[1]
+        if month != 12:
+            change_month = month + 1
+        else:
+            change_month = 12
         d_compare = d_compare.replace(day = change_day, month = change_month)
     else:
         d_compare = d_compare.replace(day = change_day)
