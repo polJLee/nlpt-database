@@ -16,33 +16,31 @@ def index():
 
 @app.route('/search.html', methods=['POST', 'GET'])
 def search_post():
-  if request.method == 'POST':
-    txt = request.form.get('search')
-    member = member_search(txt)
-    song = song_search(txt)
-    artist = artist_search(txt)
-    
-    if txt.startswith(('1','2','3','4','5','6','7','8','9','0')):
-      sunday = sunday_search(txt)
-      if sunday.startswith(txt):
-        search_result(sunday)
-      return render_template('search_result.html')
+   if request.method == 'POST':
+      txt = request.form.get('search')
+      member = member_search(txt)
+      song = song_search(txt)
+      artist = artist_search(txt)
+      if txt.startswith(('1','2','3','4','5','6','7','8','9','0')):
+         sunday = sunday_search(txt)
+         if sunday.startswith(txt):
+            search_result(sunday)
+         return render_template('search_result.html')
 
-    if not song.startswith("No songs matching") and not song.startswith("No title included"):
-      search_result(song)
-      return render_template('search_result.html')
-    if member.startswith("\nMember Name"):
-      roster = roster_search(txt)
-      search_result(member + '\n\nRoster for the month\n' + roster)
-      return render_template('search_result.html')
-    if artist.startswith('\nArtist'):
-      search_result(artist)
-      return render_template('search_result.html')
-    else:
-      search_result("\nNo Result")
-      return render_template('search_result.html')
-    
-  return render_template('search.html')  
+      if not song.startswith("No songs matching") and not song.startswith("No title included"):
+         search_result(song)
+         return render_template('search_result.html')
+      if member.startswith("\nMember Name"):
+         roster = roster_search(txt)
+         search_result(member + '\n\nRoster for the month\n' + roster)
+         return render_template('search_result.html')
+      if artist.startswith('\nArtist'):
+         search_result(artist)
+         return render_template('search_result.html')
+      else:
+         search_result("\nNo Result")
+         return render_template('search_result.html')
+   return render_template('search.html')  
 
 @app.route('/sundays.html')
 def sundays():
@@ -139,7 +137,13 @@ def sundays():
     f.write(text3)
     f.close()
   
+  
   return render_template('sundays.html')
+
+# @app.route('/sunday_result.html')
+# def sunday_result()
+
+
 
 @app.route('/members.html')
 def members():
