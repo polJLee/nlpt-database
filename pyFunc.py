@@ -349,7 +349,7 @@ def member_search(txt):
              if total_s == "" and total_v == "":
                  returnString += f"In 2022, {instring} stood {total} times\n"
              else:
-                 returnString += f"In 2022, {instring} stood {total} times"   # output information for song leaders or vocalists
+                 returnString += f"In 2022, {instring} stood {total} times: "   # output information for song leaders or vocalists
                  if total_i == "":   # if the member doesn't have a role as an instrumentalist, output the string below
                      returnString += f"{total_s} times as a Song Leader and {total_v} times as a Vocal\n"
                  else:   # output for song leaders who are also vocalist and instrumentalist
@@ -363,7 +363,6 @@ def member_search(txt):
              for item in members:
                  dict[item[0].strip()] = 0
              dict.pop(instring)  # Remove the given member from the dictionary
-             print(dict)
 
              # Using the roles that was found from the above queries, the code below executes multiple queries to find the member that stood the most with the given member name
              if r == "VG":
@@ -989,6 +988,33 @@ def show_sunday():
     finally:
         if db:
             db.close()
+
+def show_members():
+    usage = "Usage: pyFunc.py 'show_members'"
+    db = None
+    returnString = '\n'
+    
+    try:
+        db = psycopg2.connect("dbname=nlpt22")
+        cur = db.cursor()
+        cur.execute("SELECT name FROM Members")
+        info = cur.fetchall()
+        
+        for item in info:
+            print(item[0].strip())
+            if item[0].strip() == 'Annabel' or item[0].strip() == 'Annette':
+                returnString += "\n" + f"Member Name: {item[0].strip()}\nRole: Sound" + "\n"
+            else:
+                returnString += member_search(item[0].strip()) + '\n'
+        
+        return returnString
+    
+    except psycopg2.Error as err:
+        print("DB error: ", err)
+    finally:
+        if db:
+            db.close()
+
 
 def month_roster_search(txt):
     usage = "Usage: 'month_search'"

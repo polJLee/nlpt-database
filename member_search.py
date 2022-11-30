@@ -177,9 +177,9 @@ try:
         
         # if the result of song leader and vocal is empty, output relevant information for instrumentalists
         if total_s == "" and total_v == "":
-            print(f"In 2022, {instring} stood {total} times")
+            print(f"In 2022, {instring} stood {total} times ")
         else:
-            print(f"In 2022, {instring} stood {total} times")   # output information for song leaders or vocalists
+            print(f"In 2022, {instring} stood {total} times: ")   # output information for song leaders or vocalists
             if total_i == "":   # if the member doesn't have a role as an instrumentalist, output the string below
                 print(f"{total_s} times as a Song Leader and {total_v} times as a Vocal")
             else:   # output for song leaders who are also vocalist and instrumentalist
