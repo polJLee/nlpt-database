@@ -1015,7 +1015,6 @@ def show_members():
         if db:
             db.close()
 
-
 def month_roster_search(txt):
     usage = "Usage: 'month_search'"
     db = None
@@ -1062,7 +1061,7 @@ def month_roster_search(txt):
             roster.append(list)
 
         i = 0
-        returnString = ""
+        returnString = "\n"
         while i < len(sList):
             returnString += sList[i] + '\n'
             j = 0
