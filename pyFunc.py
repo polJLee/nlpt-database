@@ -151,6 +151,31 @@ def sunday_search(txt):
      finally:
          if db:
              db.close()
+             
+def month_sunday_search(txt):
+    ### Month Sunday Search ###
+    #   Given the month as an argument (January, February)
+    #   Returns the Sermon Title, Passage and Songs with Artists to the user
+
+    # set up some globals
+
+    usage = "Usage: 'month_sunday_search'"
+    db = None
+    # manipulate database
+    Months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+    
+    if txt in Months:
+        st = int(Months.index(txt)) + 1
+        sList = sundays(st)
+        mth = txt
+    # year = sunday[2:4]
+    # month = sunday[5:7]
+    # day = sunday[8:10]
+    returnString = '\n'
+    for sunday in sList:
+        date = sunday[8:10] + '.' + sunday[5:7] + '.' + sunday[2:4]
+        returnString += sunday_search(date)
+    return returnString    
 
 def member_search(txt):
      ### Member Search ###
