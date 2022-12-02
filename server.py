@@ -76,6 +76,7 @@ def search_result(searchResult):
                   <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/sundays.html">Sundays</a></li>
                   <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/members.html">Members</a></li>
                   <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/roster.html">Roster</a></li>
+                  <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/add.html">Add</a></li>
                </ul>
             </div>
          </div>
@@ -167,6 +168,7 @@ def sundays():
                   <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/sundays.html">Sundays</a></li>
                   <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/members.html">Members</a></li>
                   <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/roster.html">Roster</a></li>
+                  <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/add.html">Add</a></li>
                </ul>
             </div>
          </div>
@@ -278,6 +280,7 @@ def sunday_result(searchResult):
                   <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/sundays.html">Sundays</a></li>
                   <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/members.html">Members</a></li>
                   <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/roster.html">Roster</a></li>
+                  <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/add.html">Add</a></li>
                </ul>
             </div>
          </div>
@@ -374,6 +377,7 @@ def members():
                   <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/sundays.html">Sundays</a></li>
                   <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/members.html">Members</a></li>
                   <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/roster.html">Roster</a></li>
+                  <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/add.html">Add</a></li>
                </ul>
             </div>
          </div>
@@ -482,6 +486,7 @@ def roster():
                   <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/sundays.html">Sundays</a></li>
                   <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/members.html">Members</a></li>
                   <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/roster.html">Roster</a></li>
+                  <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/add.html">Add</a></li>
                </ul>
             </div>
          </div>
@@ -544,8 +549,6 @@ def roster():
   
    return render_template('roster.html')
 
-
-
 def roster_result(searchResult):
    text1 = """<!DOCTYPE html>
    <html lang="en">
@@ -580,6 +583,7 @@ def roster_result(searchResult):
                   <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/sundays.html">Sundays</a></li>
                   <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/members.html">Members</a></li>
                   <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/roster.html">Roster</a></li>
+                  <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/add.html">Add</a></li>
                </ul>
             </div>
          </div>
@@ -639,6 +643,10 @@ def roster_result(searchResult):
       f.write(text2)
       f.write(text3)
       f.close()
+
+@app.route('/add.html')
+def add():
+   return render_template("add.html")
 
 
 if __name__ == '__main__':
