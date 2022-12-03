@@ -441,7 +441,7 @@ def roster():
 
    if request.method == 'POST':
       txt = request.form.get('roster_search')
-      if txt in Months:
+      if txt in Months or txt == 'all' or txt == 'All':
          searched_month = month_roster_search(txt)
          roster_result(searched_month)
          return render_template('roster_result.html')
