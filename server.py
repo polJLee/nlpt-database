@@ -644,8 +644,200 @@ def roster_result(searchResult):
       f.write(text3)
       f.close()
 
-@app.route('/add.html')
+@app.route('/add.html', methods=['POST', 'GET'])
 def add():
+   if request.method == 'POST':
+      txt = request.form.get('token')
+      if txt == '2151':
+         return render_template('add_options.html')
+      elif txt != '2151':
+         text1 = """<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <title>NLPT22</title>
+        <!-- Css -->
+        <link rel="stylesheet" href="{{ url_for('static',filename='bootstrap.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}">
+    </head>
+    <body>
+        <nav class="navbar navbar-default navbar-fixed-top">
+            <div class="col-md-12">
+            <div class="nav">
+                <button class="btn-nav">
+                <span class="icon-bar inverted top"></span>
+                <span class="icon-bar inverted middle"></span>
+                <span class="icon-bar inverted bottom"></span>
+                </button>
+            </div>
+            <a class="navbar-brand" href="http://127.0.0.1:5000/">
+            <img class="logo" src="{{url_for('static', filename='logo.png')}}" alt="logo">
+            </a>
+            <div class="nav-content hideNav hidden">
+                <ul class="nav-list vcenter">
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/">Home</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/search.html">Search</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/sundays.html">Sundays</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/members.html">Members</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/roster.html">Roster</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/add.html">Add</a></li>
+                </ul>
+            </div>
+            </div>
+        </nav>
+        <!-- Header -->
+
+        <div class="span12">
+            <div class="col-md-6 no-gutter text-center fill">
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br> 
+            <h2 class="center">Enter Passcode</h2>
+            <pre width="80" style="height:50px;">"""
+         text2 = """Try Again
+         </pre>
+         <form role="form" method="POST" action="">
+                <div class="row my-4">
+                    <div class="pinBox">
+                        <input class="pinEntry" name="token" type=text maxlength=4 autocomplete=off >
+                    </div>
+                </div>
+                <a href="http://127.0.0.1:5000/add_options.html">
+                    <button class="btn">Enter</button>
+                 </a>
+            </form>
+            <br>
+            <br>
+            <br>
+            
+            </div>
+
+            <div class="col-md-6 no-gutter text-center">
+            <div id="header" data-speed="2" data-type="background">
+                <div id="headslide" class="carousel slide" data-ride="carousel">
+                    <div class="carousel-inner" role="listbox">
+                        <div class="item active"><img src="{{url_for('static',filename='add.jpg')}}" alt="Slide">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+        <div style="clear:both;"></div>
+        <!-- script -->
+        <script src="{{url_for('static',filename='jquery.js') }}"> </script>
+        <script src="{{url_for('static',filename='bootstrap.min.js') }}"> </script> 
+        <script src="{{url_for('static',filename='menu-color.js') }}"> </script>
+        <script src="{{url_for('static',filename='modernizer.js') }}"> </script>
+        <script src="{{url_for('static',filename='script.js') }}"> </script>
+    </body>
+</html>"""
+
+         with open('/Users/paullee/Downloads/nlpt-database/templates/add.html', 'w', encoding='utf-8') as f:
+            f.write(text1)
+            f.write(text2)
+            f.close()
+   
+         return render_template("add.html")
+      
+   text1 = """<!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <title>NLPT22</title>
+        <!-- Css -->
+        <link rel="stylesheet" href="{{ url_for('static',filename='bootstrap.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}">
+      </head>
+      <body>
+        <nav class="navbar navbar-default navbar-fixed-top">
+            <div class="col-md-12">
+            <div class="nav">
+                <button class="btn-nav">
+                <span class="icon-bar inverted top"></span>
+                <span class="icon-bar inverted middle"></span>
+                <span class="icon-bar inverted bottom"></span>
+                </button>
+            </div>
+            <a class="navbar-brand" href="http://127.0.0.1:5000/">
+            <img class="logo" src="{{url_for('static', filename='logo.png')}}" alt="logo">
+            </a>
+            <div class="nav-content hideNav hidden">
+                <ul class="nav-list vcenter">
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/">Home</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/search.html">Search</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/sundays.html">Sundays</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/members.html">Members</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/roster.html">Roster</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/add.html">Add</a></li>
+                </ul>
+            </div>
+            </div>
+        </nav>
+        <!-- Header -->
+
+        <div class="span12">
+            <div class="col-md-6 no-gutter text-center fill">
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br> 
+            <h2 class="center">Enter Passcode</h2>"""
+   text2 = """<form role="form" method="POST" action="">
+                <div class="row my-4">
+                    <div class="pinBox">
+                        <input class="pinEntry" name="token" type=text maxlength=4 autocomplete=off >
+                    </div>
+                </div>
+                <a href="http://127.0.0.1:5000/add_options.html">
+                    <button class="btn">Enter</button>
+                 </a>
+            </form>
+            <br>
+            <br>
+            <br>
+            
+            </div>
+
+            <div class="col-md-6 no-gutter text-center">
+            <div id="header" data-speed="2" data-type="background">
+                <div id="headslide" class="carousel slide" data-ride="carousel">
+                    <div class="carousel-inner" role="listbox">
+                        <div class="item active"><img src="{{url_for('static',filename='add.jpg')}}" alt="Slide">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+        <div style="clear:both;"></div>
+        <!-- script -->
+        <script src="{{url_for('static',filename='jquery.js') }}"> </script>
+        <script src="{{url_for('static',filename='bootstrap.min.js') }}"> </script> 
+        <script src="{{url_for('static',filename='menu-color.js') }}"> </script>
+        <script src="{{url_for('static',filename='modernizer.js') }}"> </script>
+        <script src="{{url_for('static',filename='script.js') }}"> </script>
+         </body>
+         </html>"""
+
+   with open('/Users/paullee/Downloads/nlpt-database/templates/add.html', 'w', encoding='utf-8') as f:
+      f.write(text1)
+      f.write(text2)
+      f.close()
+   
    return render_template("add.html")
 
 
