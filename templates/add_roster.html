@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-    <html lang="en">
-    <head>
+      <html lang="en">
+      <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -10,8 +10,8 @@
         <!-- Css -->
         <link rel="stylesheet" href="{{ url_for('static',filename='bootstrap.css') }}">
         <link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}">
-    </head>
-    <body>
+      </head>
+      <body>
         <nav class="navbar navbar-default navbar-fixed-top">
             <div class="col-md-12">
             <div class="nav">
@@ -46,17 +46,24 @@
             <br>
             <br>
             <br> 
-            <h2 class="center">Add</h2>
-            <form role="form" method="POST">
-                <input type="submit" name="button" value="Add Sunday">
-                <input type="submit" name="button" value="Add Member">
-                <input type="submit" name="button" value="Add Roster">
-            </form>
-            <br>
-            <br>
-            <br>
+            <h2 class="center">Add Roster</h2><form role="form" method="POST" action="">
+                <p>
+                    Which Month would you like to put into the database?
+                </p>
+                <form method='POST'>
+                    <input type="text" name="month" size="50">
+                </form>
+                <br>
+                <a href="http://127.0.0.1:5000/add_member_result.html">
+                    <button class="btn">Submit</button>
+                 </a>
             
-            
+            <br>
+            <br>
+            <br>
+            <a href="http://127.0.0.1:5000/add.html">
+                <button class="btn">Back</button>
+            </a>
             </div>
 
             <div class="col-md-6 no-gutter text-center">
@@ -77,5 +84,5 @@
         <script src="{{url_for('static',filename='menu-color.js') }}"> </script>
         <script src="{{url_for('static',filename='modernizer.js') }}"> </script>
         <script src="{{url_for('static',filename='script.js') }}"> </script>
-    </body>
-</html>
+         </body>
+         </html>

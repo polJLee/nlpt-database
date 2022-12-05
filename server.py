@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for
 import datetime
 import os
 from pyFunc import song_search, sunday_search, member_search, artist_search, roster_search, month_sunday_search, month_roster_search
@@ -14,7 +14,7 @@ app = Flask(__name__, template_folder=TEMPLATE_DIR, static_folder=STATIC_DIR)
 def index():
   return render_template('index.html')
 
-@app.route('/search.html', methods=['POST', 'GET'])
+@app.route('/search.html', methods=['POST','GET'])
 def search_post():
    if request.method == 'POST':
       txt = request.form.get('search')
@@ -132,7 +132,7 @@ def search_result(searchResult):
       f.close()
 
 
-@app.route('/sundays.html', methods=['POST', 'GET'])
+@app.route('/sundays.html', methods=['POST','GET'])
 def sundays():
    sundayResult = show_sunday()
    text1 = """<!DOCTYPE html>
@@ -432,7 +432,7 @@ def members():
    
    return render_template('members.html')
 
-@app.route('/roster.html', methods=['POST', 'GET'])
+@app.route('/roster.html', methods=['POST','GET'])
 def roster():
    date = datetime.date.today()
    Months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
@@ -644,12 +644,12 @@ def roster_result(searchResult):
       f.write(text3)
       f.close()
 
-@app.route('/add.html', methods=['POST', 'GET'])
+@app.route('/add.html', methods=['POST','GET'])
 def add():
    if request.method == 'POST':
       txt = request.form.get('token')
       if txt == '2151':
-         return render_template('add_options.html')
+         return redirect(url_for('add_options'))
       elif txt != '2151':
          text1 = """<!DOCTYPE html>
     <html lang="en">
@@ -739,15 +739,13 @@ def add():
         <script src="{{url_for('static',filename='script.js') }}"> </script>
     </body>
 </html>"""
-
          with open('/Users/paullee/Downloads/nlpt-database/templates/add.html', 'w', encoding='utf-8') as f:
             f.write(text1)
             f.write(text2)
             f.close()
-   
          return render_template("add.html")
-      
-   text1 = """<!DOCTYPE html>
+   else:
+      text1 = """<!DOCTYPE html>
       <html lang="en">
       <head>
         <meta charset="utf-8">
@@ -796,7 +794,7 @@ def add():
             <br>
             <br> 
             <h2 class="center">Enter Passcode</h2>"""
-   text2 = """<form role="form" method="POST" action="">
+      text2 = """<form role="form" method="POST" action="">
                 <div class="row my-4">
                     <div class="pinBox">
                         <input class="pinEntry" name="token" type=text maxlength=4 autocomplete=off >
@@ -833,13 +831,35 @@ def add():
          </body>
          </html>"""
 
-   with open('/Users/paullee/Downloads/nlpt-database/templates/add.html', 'w', encoding='utf-8') as f:
-      f.write(text1)
-      f.write(text2)
-      f.close()
-   
-   return render_template("add.html")
+      with open('/Users/paullee/Downloads/nlpt-database/templates/add.html', 'w', encoding='utf-8') as f:
+         f.write(text1)
+         f.write(text2)
+         f.close()
+      
+      return render_template("add.html")
 
+@app.route('/add_options.html', methods=['POST','GET'])
+def add_options():
+   if request.method == 'POST':
+      if request.form['button'] == 'Add Member':
+         return redirect(url_for('add_member'))
+      elif request.form['button'] == 'Add Sunday':
+         return redirect(url_for('add_sunday'))
+      elif request.form['button'] == 'Add Roster':
+         return redirect(url_for('add_roster'))
+   return render_template('add_options.html')
+
+@app.route('/add_member.html', methods=['POST','GET'])
+def add_member():
+   return render_template('add_member.html')
+
+@app.route('/add_sunday.hmtl', methods=['POST','GET'])
+def add_sunday():
+   return render_template('add_sunday.html')
+
+@app.route('/add_roster.html', methods=['POST','GET'])
+def add_roster():
+   return render_template('add_roster.html')
 
 if __name__ == '__main__':
   # bootstrap = Bootstrap(app)
