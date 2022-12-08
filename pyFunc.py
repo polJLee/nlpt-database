@@ -161,9 +161,6 @@ def month_sunday_search(txt):
     #   Returns the Sermon Title, Passage and Songs with Artists to the user
 
     # set up some globals
-
-    usage = "Usage: 'month_sunday_search'"
-    db = None
     # manipulate database
     Months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
     
@@ -1101,6 +1098,29 @@ def month_roster_search(txt):
         return returnString
             
         
+    except psycopg2.Error as err:
+        print("DB error: ", err)
+    finally:
+        if db:
+            db.close()
+
+def add_member(name, role):
+    db = None
+    try:
+        db = psycopg2.connect("dbname=nlpt22")
+        cur = db.cursor()
+        cur.execute("SELECT MAX(ID) FROM Members")
+        id = int(cur.fetchone()[0]) + 1
+        
+        qry = f"""
+        INSERT INTO Members(ID, Name, Role)
+        VALUES({id}, '{name}', '{role}')
+        """
+        
+        cur.execute(qry)
+        db.commit()
+        returnString = f"New member Added!\n{id} | {name} | {role}"
+        return returnString
     except psycopg2.Error as err:
         print("DB error: ", err)
     finally:
