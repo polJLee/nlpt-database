@@ -2,6 +2,7 @@ import os
 import psycopg2
 import datetime
 import operator
+import calendar
 from sundays import sundays
 
 def song_search(txt):
@@ -1121,6 +1122,141 @@ def add_member(name, role):
         db.commit()
         returnString = f"New member Added!\n{id} | {name} | {role}"
         return returnString
+    except psycopg2.Error as err:
+        print("DB error: ", err)
+    finally:
+        if db:
+            db.close()
+            
+
+def add_sunday(date, sermon_title, passage, songs, artists):
+    db = None
+    day = int(date[0:2])
+    month = int(date[3:5])
+    year = int('20' + date[6:8])
+    d = datetime.date(year, month, day) # change argument input into datetime format
+    
+    if d.isoweekday() != 7:
+        returnString = f"{date} is not a Sunday\n"
+        return returnString
+    
+    try:
+        db = psycopg2.connect("dbname=nlpt22")
+        cur = db.cursor()
+        qry = f"SELECT * FROM Sundays WHERE date = '{date}'"
+        cur.execute(qry)
+        exists_info = cur.fetchall()
+        if len(exists_info):    # Check if the data already exists
+            returnString = f"Sunday data for the date {date} already exists\n"
+            return returnString
+        
+        # Below checks if a Sunday has been skipped
+        qry = "SELECT date FROM Sundays WHERE id = (SELECT max(id) FROM Sundays)"
+        cur.execute(qry)
+        last_sunday = cur.fetchone()
+        last_day = calendar.monthrange(year, month)[1]
+        d_compare = datetime.date(int('20'+last_sunday[0][6:8]), int(last_sunday[0][3:5]), int(last_sunday[0][0:2]))
+        change_day = int(last_sunday[0][0:2]) + 7
+        if change_day > last_day:
+            change_day = change_day - calendar.monthrange(year, month-1)[1]
+            if month != 12:
+                change_month = month + 1
+            else:
+                change_month = 12
+            d_compare = d_compare.replace(day = change_day, month = change_month)
+        else:
+            d_compare = d_compare.replace(day = change_day)
+    
+        # Exits the program if a Sunday has been skipped
+        if d_compare < d:
+            returnString = f"You have skipped a Sunday: {d_compare}\n"
+            return returnString
+            
+    
+        # Returns to the user the given date, sermon title and the sermon passage of the specific Sunday
+        returnString = f"{date} | {sermon_title} | {passage}\n"
+        i = 0
+        while i < len(songs): # Prints all the song title and artist of the Sunday
+            returnString += f"    {songs[i]} by {artists[i]}\n"
+            i += 1
+        
+        qry = f"""
+        SELECT max(id) from Sundays
+        """
+        cur.execute(qry)    # Fetches a new id for the Sunday
+        sundayID = cur.fetchone()[0] + 1
+        qry = f"""
+        INSERT INTO Sundays (ID, Date, Title, Passage)
+        VALUES ({sundayID}, '{date}', '{sermon_title}', '{passage}');
+        """
+        cur.execute(qry)
+        db.commit() # insert new sunday information to the database
+        
+        i = 0
+        while i < len(songs): #Loop through each song and artists
+            if "'" in songs[i]:
+                songs[i] = songs[i].replace("'", "''")	# if an apostrophe is used as part of the song, replace it as '' to be used for queries
+            songs[i] = songs[i].strip()
+
+            if "'" in artists[i]:
+                artists[i] = artists[i].replace("'", "''")    # if an apostrophe is used as part of the artist name, replace it as '' to be used for queries
+            artists[i] = artists[i].strip()
+
+            qry = f"""
+            SELECT Songs.id, Songs.title, Artists.name 
+            FROM Songs, Artists 
+            WHERE Songs.title = '{songs[i]}'
+            AND Artists.name = '{artists[i]}' 
+            AND Songs.artistid = Artists.id
+            """
+            cur.execute(qry)
+            info = cur.fetchall()   # Fetch song information from the database
+
+            if len(info) == 0:  # if the song information does not exist in the database, insert new song information with new id
+                cur.execute("SELECT MAX(ID) FROM Songs")
+                sID = cur.fetchone()[0] + 1
+                artists[i] = artists[i].strip()
+                qry = f"SELECT id FROM Artists WHERE name = '{artists[i]}'"  # Fetch Artist ID to insert the information for new song variable
+                cur.execute(qry)
+                aID = cur.fetchone()
+
+                if aID == None: # if the artist is not part of the database, create new artist and add it to the database
+                    aID = input(f"Enter new ID for new artist ({artists[i]}) in database:\n")    # Asks for input for an artist ID for the new artist
+
+                    qry = f"""
+                    INSERT INTO Artists (ID, Name)
+                    VALUES ({aID}, {artists[i]})
+                    """
+                    cur.execute(qry)
+                    db.commit()
+                    returnString += f"{artists[i]} ({aID}) added as a new artist in the database\n"   # Notify the user that a new artist has been added to the database
+                else:
+                    aID = aID[0].strip()    # if the artist already exists, strip away whitespaces
+
+                qry = f"""
+                INSERT INTO Songs (ID, Title, ArtistID)
+                VALUES ({sID}, '{songs[i].strip()}', '{aID}');
+                """
+                cur.execute(qry)
+                db.commit() # commit new song information with the relevant information to the database
+
+                returnString += "New Song added\n"   # Notifies the user that a new song has been added with the relevant information
+                returnString += f"song_ID: {sID}  |  Song: {songs[i]}  |  Artist: {artists[i]}  |  artist_ID: {aID}\n"
+                songID = sID
+            else:   # if song exists in the database, add it to the relevant variables in order to update sunday_songs
+                songID = info[0][0] 
+
+            qry = f"""
+            INSERT INTO Sunday_Songs (songID, SundayID)
+            VALUES ({songID}, {sundayID})
+            """
+            cur.execute(qry)
+            db.commit() # commit songID and sundayID into the table Sunday_Songs so that the user is able use Sunday_search.py to search what song we have done on a specific Sunday.
+            i += 1
+        
+        returnString += f"{len(songs)} Songs added into the database for {date}\n"  # Notifies user that all the songs have been added successfully!
+        return returnString
+
     except psycopg2.Error as err:
         print("DB error: ", err)
     finally:
