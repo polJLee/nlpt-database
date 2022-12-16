@@ -1,9 +1,11 @@
 from flask import Flask, render_template, request, redirect, url_for
 import datetime
 import os
+from sundays import sundays
 from pyFunc import song_search, sunday_search, member_search, artist_search, roster_search, month_sunday_search, month_roster_search
 from pyFunc import show_sunday, show_members
 from pyFunc import add_member, add_sunday
+from pyFunc import numWeeks
 
 # Defined Globals
 TEMPLATE_DIR = os.path.abspath('/Users/paullee/Downloads/nlpt-database/templates')
@@ -132,9 +134,8 @@ def search_result(searchResult):
       f.write(text3)
       f.close()
 
-
 @app.route('/sundays.html', methods=['POST','GET'])
-def sundays():
+def sundays_post():
    sundayResult = show_sunday()
    text1 = """<!DOCTYPE html>
 <html lang="en">
@@ -845,7 +846,7 @@ def add_options():
       elif request.form['button'] == 'Add Sunday':
          return redirect(url_for('add_sunday_post'))
       elif request.form['button'] == 'Add Roster':
-         return redirect(url_for('add_roster'))
+         return redirect(url_for('add_month'))
    return render_template('add_options.html')
 
 @app.route('/add_member.html', methods=['POST','GET'])
@@ -1255,9 +1256,282 @@ def add_sunday_post():
          f.close()
       return render_template('add_sunday.html')
 
+@app.route('/add_month.html', methods=['POST','GET'])
+def add_month():
+   today = datetime.date.today()
+   if request.method == 'POST':
+      Months = {
+                "January"   : 1,
+                "Februrary" : 2,
+                "March"     : 3,   #Good Friday
+                "April"     : 4,   #Good Friday
+                "May"       : 5,
+                "June"      : 6,    #Wintercon
+                "July"      : 7,    #Wintercon
+                "August"    : 8,
+                "September" : 9,
+                "October"   : 10,
+                "November"  : 11,
+                "December"  : 12    #Christmas
+               }
+      print(request.form.get('mText'))
+      numWeek = numWeeks(request.form.get('mText')) 
+      sundayList = sundays(Months[request.form.get('mText')], today.year)
+      text1 = """<!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <title>NLPT22</title>
+        <!-- Css -->
+        <link rel="stylesheet" href="{{ url_for('static',filename='bootstrap.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}">
+      </head>
+      <body>
+        <nav class="navbar navbar-default navbar-fixed-top">
+            <div class="col-md-12">
+            <div class="nav">
+                <button class="btn-nav">
+                <span class="icon-bar inverted top"></span>
+                <span class="icon-bar inverted middle"></span>
+                <span class="icon-bar inverted bottom"></span>
+                </button>
+            </div>
+            <a class="navbar-brand" href="http://127.0.0.1:5000/">
+            <img class="logo" src="{{url_for('static', filename='logo.png')}}" alt="logo">
+            </a>
+            <div class="nav-content hideNav hidden">
+                <ul class="nav-list vcenter">
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/">Home</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/search.html">Search</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/sundays.html">Sundays</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/members.html">Members</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/roster.html">Roster</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/add.html">Add</a></li>
+                </ul>
+            </div>
+            </div>
+        </nav>
+        <!-- Header -->
+
+        <div class="span12">
+            <div class="col-md-6 no-gutter text-center fill">
+            <br>
+            <br>
+            <br> 
+            <h2 class="center">Add Roster</h2>
+            """
+                
+      text2 = """<br>
+            <br>
+            <br>
+            <a href="http://127.0.0.1:5000/add_roster_result.html">
+               <button class="btn">Submit</button>
+            </a>
+            <br>
+            <a href="http://127.0.0.1:5000/add.html">
+                <button class="btn">Back</button>
+            </a>
+            </div>
+
+            <div class="col-md-6 no-gutter text-center">
+            <div id="header" data-speed="2" data-type="background">
+                <div id="headslide" class="carousel slide" data-ride="carousel">
+                    <div class="carousel-inner" role="listbox">
+                        <div class="item active"><img src="{{url_for('static',filename='add.jpg')}}" alt="Slide">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+        <div style="clear:both;"></div>
+        <!-- script -->
+        <script src="{{url_for('static',filename='jquery.js') }}"> </script>
+        <script src="{{url_for('static',filename='bootstrap.min.js') }}"> </script> 
+        <script src="{{url_for('static',filename='menu-color.js') }}"> </script>
+        <script src="{{url_for('static',filename='modernizer.js') }}"> </script>
+        <script src="{{url_for('static',filename='script.js') }}"> </script>
+         </body>
+         </html>"""
+   
+      with open('/Users/paullee/Downloads/nlpt-database/templates/add_roster.html', 'w', encoding='utf-8') as f:
+         f.write(text1)
+         i = 0
+         while i < numWeek:
+            sunday = sundayList[i]
+            input = f"""<form method='POST'>
+                  <p>
+                     Enter Roster for {sunday}
+                  </p>
+                  
+                  <div class="col-md-12">
+                  <p>
+                     Song Leader 1
+                  </p>
+                  <input type="text" name="SL1_{i+1}" size=30>
+                  <p>
+                     Song Leader 2
+                  </p>
+                  <input type="text" name="SL2_{i+1}" size=30>
+                  <p>
+                     Vocal
+                  </p>
+                  <input type="text" name="V_{i+1}" size=30>
+                  <p>
+                     Guitar 1
+                  </p>
+                  <input type="text" name="G1_{i+1}" size=30>
+                  <p>
+                     Guitar 2
+                  </p>
+                  <input type="text" name="G2_{i+1}" size=30>
+                  <p>
+                     Keys
+                  </p>
+                  <input type="text" name="K_{i+1}" size=30>
+                  <p>
+                     Drums
+                  </p>
+                  <input type="text" name="D_{i+1}" size=30>
+                  <p>
+                     Pads
+                  </p>
+                  <input type="text" name="P_{i+1}" size=30>
+                </div>"""
+            f.write(input)
+            i += 1
+         f.write(text2)
+         f.close()
+      
+      return redirect(url_for('add_roster_post', variable=numWeek))
+   else:
+      text = """<!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <title>NLPT22</title>
+        <!-- Css -->
+        <link rel="stylesheet" href="{{ url_for('static',filename='bootstrap.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}">
+      </head>
+      <body>
+        <nav class="navbar navbar-default navbar-fixed-top">
+            <div class="col-md-12">
+            <div class="nav">
+                <button class="btn-nav">
+                <span class="icon-bar inverted top"></span>
+                <span class="icon-bar inverted middle"></span>
+                <span class="icon-bar inverted bottom"></span>
+                </button>
+            </div>
+            <a class="navbar-brand" href="http://127.0.0.1:5000/">
+            <img class="logo" src="{{url_for('static', filename='logo.png')}}" alt="logo">
+            </a>
+            <div class="nav-content hideNav hidden">
+                <ul class="nav-list vcenter">
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/">Home</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/search.html">Search</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/sundays.html">Sundays</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/members.html">Members</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/roster.html">Roster</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/add.html">Add</a></li>
+                </ul>
+            </div>
+            </div>
+        </nav>
+        <!-- Header -->
+
+        <div class="span12">
+            <div class="col-md-6 no-gutter text-center fill">
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br> 
+            <h2 class="center">Add Roster</h2>
+                <p>
+                    Which Month would you like to put into the database?
+                </p>
+                <form method='POST'>
+                    <input type="text" name="mText" size="50">
+                    <br>
+                    <button class="btn">Submit</button>
+                </form>
+            
+            <br>
+            <br>
+            <br>
+            <a href="http://127.0.0.1:5000/add.html">
+                <button class="btn">Back</button>
+            </a>
+            </div>
+
+            <div class="col-md-6 no-gutter text-center">
+            <div id="header" data-speed="2" data-type="background">
+                <div id="headslide" class="carousel slide" data-ride="carousel">
+                    <div class="carousel-inner" role="listbox">
+                        <div class="item active"><img src="{{url_for('static',filename='add.jpg')}}" alt="Slide">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+        <div style="clear:both;"></div>
+        <!-- script -->
+        <script src="{{url_for('static',filename='jquery.js') }}"> </script>
+        <script src="{{url_for('static',filename='bootstrap.min.js') }}"> </script> 
+        <script src="{{url_for('static',filename='menu-color.js') }}"> </script>
+        <script src="{{url_for('static',filename='modernizer.js') }}"> </script>
+        <script src="{{url_for('static',filename='script.js') }}"> </script>
+         </body>
+         </html>"""
+      with open('/Users/paullee/Downloads/nlpt-database/templates/add_month.html', 'w', encoding='utf-8') as f:
+         f.write(text)
+         f.close()
+      return render_template('add_month.html')
+
+
 @app.route('/add_roster.html', methods=['POST','GET'])
-def add_roster():
+def add_roster_post():
+   numWeek = request.form.get('variable')
+   if request.method == 'POST':
+      song_leader1 = []
+      song_leader2 = []
+      vocal = []
+      Guitar_1 = []
+      Guitar_2 = []
+      Keys = []
+      Drums = []
+      Pads = []
+      
+      i = 0
+      while i < numWeek:
+         song_leader1.append(request.form.get(f'SL1_{i+1}'))
+         song_leader2.append(request.form.get(f'SL2_{i+1}'))
+         vocal.append(request.form.get(f'V_{i+1}'))
+         Guitar_1.append(request.form.get(f'G1_{i+1}'))
+         Guitar_2.append(request.form.get(f'G2_{i+1}'))
+         Keys.append(request.form.get(f'K_{i+1}'))
+         Drums.append(request.form.get(f'D_{i+1}'))
+         Pads.append(request.form.get(f'P_{i+1}'))
+         i += 1
+      
+      
+   
    return render_template('add_roster.html')
+
+
+
 
 if __name__ == '__main__':
   # bootstrap = Bootstrap(app)

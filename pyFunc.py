@@ -167,7 +167,8 @@ def month_sunday_search(txt):
     
     if txt in Months:
         st = int(Months.index(txt)) + 1
-        sList = sundays(st)
+        today = datetime.date.today()
+        sList = sundays(st, today.year)
     returnString = '\n'
     for sunday in sList:
         date = sunday[8:10] + '.' + sunday[5:7] + '.' + sunday[2:4]
@@ -905,7 +906,7 @@ def roster_search(txt):
             returnString = "No name included"
             return returnString
         name = txt
-        sList = sundays(today.month)
+        sList = sundays(today.month, today.year)
 
         cur.execute(f"SELECT MIN(id) FROM Roster WHERE month = '{month}'")
         minID = int(cur.fetchone()[0])
@@ -1024,18 +1025,19 @@ def month_roster_search(txt):
     try:
         db = psycopg2.connect("dbname=nlpt22")
         cur = db.cursor()
+        today = datetime.date.today()
         if len(txt) == 0:   # if there was no month included as an argument
             returnString = "No month included"
             return returnString
         
         if txt.isdigit():
             txt = int(txt)
-            sList = sundays(txt)
+            sList = sundays(txt, today.year)
             txt = txt - 1
             mth = Months[txt]
         elif txt in Months:
             st = int(Months.index(txt)) + 1
-            sList = sundays(st)
+            sList = sundays(st, today.year)
             mth = txt
         if txt == 'all' or txt == 'All':
             qry = f"""
@@ -1069,7 +1071,7 @@ def month_roster_search(txt):
         if txt == 'all' or txt == 'All':
             returnString = "\n"
             for m in range(1,12):
-                sList = sundays(m)
+                sList = sundays(m, today.year)
                 i = 0
                 while i < len(sList):
                     returnString += sList[i] + '\n'
@@ -1127,8 +1129,7 @@ def add_member(name, role):
     finally:
         if db:
             db.close()
-            
-
+    
 def add_sunday(date, sermon_title, passage, songs, artists):
     db = None
     day = int(date[0:2])
@@ -1262,3 +1263,114 @@ def add_sunday(date, sermon_title, passage, songs, artists):
     finally:
         if db:
             db.close()
+
+def easter(year):
+    
+    year = int(year)
+
+    D = 225 - 11*(year % 19)
+
+    if D > 50:
+        while D >= 51:
+            D -= 30
+    if D > 48:
+        D -= 1
+
+    E = int((year + (year/4) + D + 1) % 7)
+    Q = D + 7 - E
+
+    output = []
+    if Q < 32:
+        month = '03'
+        Eday = Q
+        Gday = str(Q - 2)
+        output.append(f"{Eday}.{month}")
+        output.append(f"{Gday}.{month}")
+    else:
+        month = '04'
+        day = Q - 31
+        if day < 10 and day > 2:
+            Eday = '0' + str(day) 
+            Gday = '0' + str(day - 2)
+            output.append(f"{Eday}.{month}")
+            output.append(f"{Gday}.{month}")
+        elif day <= 2:
+            day = '0' + str(day)
+            output.append(f"{day}.{month}")
+            month = '03'
+            day = str(31 - (2-int(day)))
+            output.append(f"{day}.{month}")
+        else:
+            output.append(f"{day}.{month}")
+            day = str(day - 2)
+            output.append(f"{day}.{month}") 
+    return output
+   
+def numWeeks(Month):
+    if Month == 'Wintercon' or Month == 'wintercon':
+        return 4
+    else:
+        # Grab information related to the Month of the Roster
+        Months = {
+                "January"   : 1,
+                "Februrary" : 2,
+                "March"     : 3,   #Good Friday
+                "April"     : 4,   #Good Friday
+                "May"       : 5,
+                "June"      : 6,    #Wintercon
+                "July"      : 7,    #Wintercon
+                "August"    : 8,
+                "September" : 9,
+                "October"   : 10,
+                "November"  : 11,
+                "December"  : 12    #Christmas
+        }
+        Month = Months[Month]
+        today = datetime.date.today()
+        Easter = easter(today.isoformat()[0:4])
+        
+        start = today.replace(month=Month, day=1)       # Get the first date of the month
+        last_day = calendar.monthrange(2022,Month)[1]   # Get the last day of the month
+        end = start.replace(day=last_day)               # last date of the month
+        numWeeks = 0
+        
+        for i in range(start.day, end.day): # Loop through start to end date of the month and find the number of Sundays for the month
+            d = datetime.date(year=2022, month = Month, day = i)
+            if d.isoweekday() == 7:
+                numWeeks += 1
+            i += 1
+        if (Month == int(Easter[1][4])):   # add an extra day if Good Friday occurs on this month
+            numWeeks += 1
+        if (Month == 12 and (today.replace(month=12,day=25).isoweekday()) != 7):   # add an extra day if Christmas is included in the roster AND Christmas does not fall on a Sunday
+            numWeeks += 1
+        return numWeeks
+
+def add_roster(month, song_leader1, song_leader2, vocal, guitar_1, guitar_2, keys, drum, pads):
+    try:
+        db = psycopg2.connect("dbname=nlpt22")
+        cur = db.cursor()
+        cur.execute("SELECT MAX(id) FROM Roster")
+        id = cur.fetchone()[0]
+        rid = id
+        for i in range (0, len(song_leader1)):
+            rid += 1
+            qry = f"""
+            INSERT INTO Roster(id, month, song_leader1, song_leader2, vocal, guitar_1, guitar_2, keys, drum, pads)
+            VALUES ({rid}, '{month}', '{song_leader1[i]}', '{song_leader2[i]}', '{vocal[i]}', '{guitar_1[i]}', '{guitar_2[i]}', '{keys[i]}', '{drum[i]}', '{pads[i]}')
+            """
+            cur.execute(qry)
+            db.commit()
+        qry = f"SELECT month, song_leader1, song_leader2, vocal, guitar_1, guitar_2, keys, drum, pads WHERE id > {id}"
+        cur.execute(qry)
+        results = cur.fetchall()
+        returnString = results
+        
+        return returnString
+        
+    except psycopg2.Error as err:
+        print("DB Error: ", err)
+    finally:
+        if db:
+            db.close()
+    
+        
