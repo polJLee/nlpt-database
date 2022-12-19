@@ -908,7 +908,17 @@ def roster_search(txt):
         name = txt
         sList = sundays(today.month, today.year)
 
-        cur.execute(f"SELECT MIN(id) FROM Roster WHERE month = '{month}'")
+        d = sList[0]
+        year = d[2:4]
+        month = d[5:7]
+        day = d[8:10]
+        
+        first_sun = day + "." + month + "." + year
+        qry = f"SELECT id FROM Sundays WHERE date = '{first_sun}'"
+        cur.execute(qry)
+        fID = cur.fetchone()[0]
+        
+        cur.execute(f"SELECT MIN(id) FROM Roster WHERE month = '{month}' AND id >= {fID}")
         minID = int(cur.fetchone()[0])
 
         qry = f"""
