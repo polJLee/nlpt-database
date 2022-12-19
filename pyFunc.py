@@ -309,13 +309,19 @@ def member_search(txt):
                 OR pads = '{instring}'
                 """
                 r = "K"
-            else:
+            elif "Drum" in role:
                 countqry = f"""
                 SELECT count(*)
                 FROM Roster
                 WHERE Drum = '{instring}'
                 """
                 r = "D"
+            else:   # sound
+                countqry = f"""
+                SELECT count(*)
+                FROM Roster
+                WHERE pads = '{instring}'
+                """
 
             cur.execute(countqry)
             total = cur.fetchone()  # Fetch frequency member has stood
@@ -344,10 +350,15 @@ def member_search(txt):
             returnString += f"Role: {role}\n"
 
             # if the result of song leader and vocal is empty, output relevant information for instrumentalists
-            if total_s == "" and total_v == "":
-                returnString += f"In 2022, {instring} stood {total} times\n"
+            
+            if total_s == "" and total_v == "" and total != 0:
+                returnString += f"Since 2022, {instring} stood {total} times\n"
+            elif instring == 'Annabel' or instring == 'Annette':
+                returnString += f"{instring} is rostered on the sound board every fortnight\n"
+            elif total == 0 and instring != 'Annabel' and instring != 'Annette':
+                returnString += f"{instring} has not been rostered yet"
             else:
-                returnString += f"In 2022, {instring} stood {total} times: "   # output information for song leaders or vocalists
+                returnString += f"Since 2022, {instring} stood {total} times: "   # output information for song leaders or vocalists
                 if total_i == "":   # if the member doesn't have a role as an instrumentalist, output the string below
                     returnString += f"{total_s} times as a Song Leader and {total_v} times as a Vocal\n"
                 else:   # output for song leaders who are also vocalist and instrumentalist
@@ -362,436 +373,439 @@ def member_search(txt):
                 dict[item[0].strip()] = 0
             dict.pop(instring)  # Remove the given member from the dictionary
 
-            # Using the roles that was found from the above queries, the code below executes multiple queries to find the member that stood the most with the given member name
-            if r == "VG":
-                qry = f"""
-                SELECT Song_leader2, COUNT(Song_leader2) 
-                FROM Roster 
-                WHERE Song_leader1 = '{instring}'
-                AND Song_leader2 != ''
-                GROUP BY Song_leader2
-                ORDER BY COUNT(Song_leader2) DESC
-                """
-                cur.execute(qry)
-                update_dict(cur.fetchall())
-                qry = f"""
-                SELECT Vocal, COUNT(Vocal)
-                FROM Roster
-                WHERE Song_leader1 = '{instring}'
-                AND Vocal != ''
-                GROUP BY Vocal
-                ORDER BY COUNT(Vocal) DESC
-                """
-                cur.execute(qry)
-                update_dict(cur.fetchall())
-                qry = f"""
-                SELECT Song_leader1, COUNT(Song_leader1)
-                FROM Roster
-                WHERE Song_leader2 = '{instring}'
-                GROUP BY Song_leader1
-                ORDER BY COUNT(Song_leader1) DESC
-                """
-                cur.execute(qry)
-                update_dict(cur.fetchall())
+            
+            if total != 0:
+                
+                # Using the roles that was found from the above queries, the code below executes multiple queries to find the member that stood the most with the given member name
+                if r == "VG":
+                    qry = f"""
+                    SELECT Song_leader2, COUNT(Song_leader2) 
+                    FROM Roster 
+                    WHERE Song_leader1 = '{instring}'
+                    AND Song_leader2 != ''
+                    GROUP BY Song_leader2
+                    ORDER BY COUNT(Song_leader2) DESC
+                    """
+                    cur.execute(qry)
+                    update_dict(cur.fetchall())
+                    qry = f"""
+                    SELECT Vocal, COUNT(Vocal)
+                    FROM Roster
+                    WHERE Song_leader1 = '{instring}'
+                    AND Vocal != ''
+                    GROUP BY Vocal
+                    ORDER BY COUNT(Vocal) DESC
+                    """
+                    cur.execute(qry)
+                    update_dict(cur.fetchall())
+                    qry = f"""
+                    SELECT Song_leader1, COUNT(Song_leader1)
+                    FROM Roster
+                    WHERE Song_leader2 = '{instring}'
+                    GROUP BY Song_leader1
+                    ORDER BY COUNT(Song_leader1) DESC
+                    """
+                    cur.execute(qry)
+                    update_dict(cur.fetchall())
 
-                qry = f"""
-                SELECT Vocal, COUNT(Vocal)
-                FROM Roster
-                WHERE Song_leader2 = '{instring}'
-                AND Vocal != ''
-                GROUP BY Vocal
-                ORDER BY COUNT(Vocal) DESC
-                """
-                cur.execute(qry)
-                update_dict(cur.fetchall())
+                    qry = f"""
+                    SELECT Vocal, COUNT(Vocal)
+                    FROM Roster
+                    WHERE Song_leader2 = '{instring}'
+                    AND Vocal != ''
+                    GROUP BY Vocal
+                    ORDER BY COUNT(Vocal) DESC
+                    """
+                    cur.execute(qry)
+                    update_dict(cur.fetchall())
 
-                qry = f"""
-                SELECT Song_leader1, COUNT(Song_leader1)
-                FROM Roster
-                WHERE Vocal = '{instring}'
-                GROUP BY Song_leader1
-                ORDER BY COUNT(Song_leader1) DESC
-                """
-                cur.execute(qry)
-                update_dict(cur.fetchall())
+                    qry = f"""
+                    SELECT Song_leader1, COUNT(Song_leader1)
+                    FROM Roster
+                    WHERE Vocal = '{instring}'
+                    GROUP BY Song_leader1
+                    ORDER BY COUNT(Song_leader1) DESC
+                    """
+                    cur.execute(qry)
+                    update_dict(cur.fetchall())
 
-                qry = f"""
-                SELECT Song_leader2, COUNT(Song_leader2)
-                FROM Roster
-                WHERE Vocal = '{instring}'
-                AND Song_leader2 != ''
-                GROUP BY Song_leader2
-                ORDER BY COUNT(Song_leader2) DESC
-                """
-                cur.execute(qry)
-                update_dict(cur.fetchall())
-                max_voc_name = max(dict.items(), key=operator.itemgetter(1))[0]     # Grab the name of the vocalist member who has stood most with the given member
-                max_voc_val = dict[max_voc_name]       # Find the frequency of the vocalist member that stood the most with the given member
-                dict = dict.fromkeys(dict,0)           # Reset Dictionary
+                    qry = f"""
+                    SELECT Song_leader2, COUNT(Song_leader2)
+                    FROM Roster
+                    WHERE Vocal = '{instring}'
+                    AND Song_leader2 != ''
+                    GROUP BY Song_leader2
+                    ORDER BY COUNT(Song_leader2) DESC
+                    """
+                    cur.execute(qry)
+                    update_dict(cur.fetchall())
+                    max_voc_name = max(dict.items(), key=operator.itemgetter(1))[0]     # Grab the name of the vocalist member who has stood most with the given member
+                    max_voc_val = dict[max_voc_name]       # Find the frequency of the vocalist member that stood the most with the given member
+                    dict = dict.fromkeys(dict,0)           # Reset Dictionary
 
-                qry = f"""
-                SELECT keys, COUNT(keys)
-                FROM Roster
-                WHERE Song_leader1 = '{instring}'
-                OR Song_leader2 = '{instring}'
-                OR Vocal = '{instring}'
-                GROUP BY Keys
-                ORDER BY COUNT(Keys) DESC
-                """
-                cur.execute(qry)
-                info = cur.fetchone()
-                max_keys_name = info[0].strip()     # Grab the name of the pianist member who ahs stood most with the given member
-                max_keys_val = info[1]              # Find the frequency of the pianist member that stood the most with the given member
-                returnString += f"Below are the name and the frequency of members that {instring} has stood with\n"    # Output the information from the dictionaries
-                returnString += f"   Vocal | {max_voc_name} : {max_voc_val}\n"
-                returnString += f"Keys  | {max_keys_name} : {max_keys_val}\n"
-            elif r == 'VK':
-                qry = f"""
-                SELECT Song_leader2, COUNT(Song_leader2) 
-                FROM Roster 
-                WHERE Song_leader1 = '{instring}'
-                AND Song_leader2 != ''
-                GROUP BY Song_leader2
-                ORDER BY COUNT(Song_leader2) DESC
-                """
-                cur.execute(qry)
-                update_dict(cur.fetchall())
-                qry = f"""
-                SELECT Vocal, COUNT(Vocal)
-                FROM Roster
-                WHERE Song_leader1 = '{instring}'
-                AND Vocal != ''
-                GROUP BY Vocal
-                ORDER BY COUNT(Vocal) DESC
-                """
-                cur.execute(qry)
-                update_dict(cur.fetchall())
-                qry = f"""
-                SELECT Song_leader1, COUNT(Song_leader1)
-                FROM Roster
-                WHERE Song_leader2 = '{instring}'
-                GROUP BY Song_leader1
-                ORDER BY COUNT(Song_leader1) DESC
-                """
-                cur.execute(qry)
-                update_dict(cur.fetchall())
+                    qry = f"""
+                    SELECT keys, COUNT(keys)
+                    FROM Roster
+                    WHERE Song_leader1 = '{instring}'
+                    OR Song_leader2 = '{instring}'
+                    OR Vocal = '{instring}'
+                    GROUP BY Keys
+                    ORDER BY COUNT(Keys) DESC
+                    """
+                    cur.execute(qry)
+                    info = cur.fetchone()
+                    max_keys_name = info[0].strip()     # Grab the name of the pianist member who ahs stood most with the given member
+                    max_keys_val = info[1]              # Find the frequency of the pianist member that stood the most with the given member
+                    returnString += f"Below are the name and the frequency of members that {instring} has stood with\n"    # Output the information from the dictionaries
+                    returnString += f"   Vocal | {max_voc_name} : {max_voc_val}\n"
+                    returnString += f"Keys  | {max_keys_name} : {max_keys_val}\n"
+                elif r == 'VK':
+                    qry = f"""
+                    SELECT Song_leader2, COUNT(Song_leader2) 
+                    FROM Roster 
+                    WHERE Song_leader1 = '{instring}'
+                    AND Song_leader2 != ''
+                    GROUP BY Song_leader2
+                    ORDER BY COUNT(Song_leader2) DESC
+                    """
+                    cur.execute(qry)
+                    update_dict(cur.fetchall())
+                    qry = f"""
+                    SELECT Vocal, COUNT(Vocal)
+                    FROM Roster
+                    WHERE Song_leader1 = '{instring}'
+                    AND Vocal != ''
+                    GROUP BY Vocal
+                    ORDER BY COUNT(Vocal) DESC
+                    """
+                    cur.execute(qry)
+                    update_dict(cur.fetchall())
+                    qry = f"""
+                    SELECT Song_leader1, COUNT(Song_leader1)
+                    FROM Roster
+                    WHERE Song_leader2 = '{instring}'
+                    GROUP BY Song_leader1
+                    ORDER BY COUNT(Song_leader1) DESC
+                    """
+                    cur.execute(qry)
+                    update_dict(cur.fetchall())
 
-                qry = f"""
-                SELECT Vocal, COUNT(Vocal)
-                FROM Roster
-                WHERE Song_leader2 = '{instring}'
-                AND Vocal != ''
-                GROUP BY Vocal
-                ORDER BY COUNT(Vocal) DESC
-                """
-                cur.execute(qry)
-                update_dict(cur.fetchall())
+                    qry = f"""
+                    SELECT Vocal, COUNT(Vocal)
+                    FROM Roster
+                    WHERE Song_leader2 = '{instring}'
+                    AND Vocal != ''
+                    GROUP BY Vocal
+                    ORDER BY COUNT(Vocal) DESC
+                    """
+                    cur.execute(qry)
+                    update_dict(cur.fetchall())
 
-                qry = f"""
-                SELECT Song_leader1, COUNT(Song_leader1)
-                FROM Roster
-                WHERE Vocal = '{instring}'
-                GROUP BY Song_leader1
-                ORDER BY COUNT(Song_leader1) DESC
-                """
-                cur.execute(qry)
-                update_dict(cur.fetchall())
+                    qry = f"""
+                    SELECT Song_leader1, COUNT(Song_leader1)
+                    FROM Roster
+                    WHERE Vocal = '{instring}'
+                    GROUP BY Song_leader1
+                    ORDER BY COUNT(Song_leader1) DESC
+                    """
+                    cur.execute(qry)
+                    update_dict(cur.fetchall())
 
-                qry = f"""
-                SELECT Song_leader2, COUNT(Song_leader2)
-                FROM Roster
-                WHERE Vocal = '{instring}'
-                GROUP BY Song_leader2
-                ORDER BY COUNT(Song_leader2) DESC
-                """
-                cur.execute(qry)
-                update_dict(cur.fetchall())
-                max_voc_name = max(dict.items(), key=operator.itemgetter(1))[0]     # Grab the name of the vocalist member who has stood most with the given member
-                max_voc_val = dict[max_voc_name]                                    # Find the frequency of the vocalist member that stood the most with the given member
-                dict = dict.fromkeys(dict,0)
+                    qry = f"""
+                    SELECT Song_leader2, COUNT(Song_leader2)
+                    FROM Roster
+                    WHERE Vocal = '{instring}'
+                    GROUP BY Song_leader2
+                    ORDER BY COUNT(Song_leader2) DESC
+                    """
+                    cur.execute(qry)
+                    update_dict(cur.fetchall())
+                    max_voc_name = max(dict.items(), key=operator.itemgetter(1))[0]     # Grab the name of the vocalist member who has stood most with the given member
+                    max_voc_val = dict[max_voc_name]                                    # Find the frequency of the vocalist member that stood the most with the given member
+                    dict = dict.fromkeys(dict,0)
 
-                qry = f"""
-                SELECT Guitar_1, COUNT(Guitar_1)
-                FROM Roster
-                WHERE Song_leader1 = '{instring}'
-                OR Song_leader2 = '{instring}'
-                OR Vocal = '{instring}'
-                GROUP BY Guitar_1
-                ORDER BY COUNT(Guitar_1) DESC
-                """
-                cur.execute(qry)
-                update_dict(cur.fetchall())
+                    qry = f"""
+                    SELECT Guitar_1, COUNT(Guitar_1)
+                    FROM Roster
+                    WHERE Song_leader1 = '{instring}'
+                    OR Song_leader2 = '{instring}'
+                    OR Vocal = '{instring}'
+                    GROUP BY Guitar_1
+                    ORDER BY COUNT(Guitar_1) DESC
+                    """
+                    cur.execute(qry)
+                    update_dict(cur.fetchall())
 
-                qry = f"""
-                SELECT Guitar_2, COUNT(Guitar_2)
-                FROM Roster
-                WHERE (Song_leader1 = '{instring}'
-                OR Song_leader2 = '{instring}'
-                OR Vocal = '{instring}')
-                AND Guitar_2 != ''
-                GROUP BY Guitar_2
-                ORDER BY COUNT(Guitar_2) DESC
-                """
-                cur.execute(qry)
-                update_dict(cur.fetchall())
-                max_guitar_name = max(dict.items(), key=operator.itemgetter(1))[0] # Grab the name of the vocalist member who has stood most with the given member 
-                max_guitar_val = dict[max_guitar_name]                             # Find the frequency of the guitarist member that stood the most with the given member
-                returnString += f"Below are the name and the frequency of members that {instring} has stood with\n" # Output the information from the dictionaries
-                returnString += f"Vocal  | {max_voc_name} : {max_voc_val}\n"
-                returnString += f"Guitar | {max_guitar_name} : {max_guitar_val}\n"
-            elif r == 'V':
+                    qry = f"""
+                    SELECT Guitar_2, COUNT(Guitar_2)
+                    FROM Roster
+                    WHERE (Song_leader1 = '{instring}'
+                    OR Song_leader2 = '{instring}'
+                    OR Vocal = '{instring}')
+                    AND Guitar_2 != ''
+                    GROUP BY Guitar_2
+                    ORDER BY COUNT(Guitar_2) DESC
+                    """
+                    cur.execute(qry)
+                    update_dict(cur.fetchall())
+                    max_guitar_name = max(dict.items(), key=operator.itemgetter(1))[0] # Grab the name of the vocalist member who has stood most with the given member 
+                    max_guitar_val = dict[max_guitar_name]                             # Find the frequency of the guitarist member that stood the most with the given member
+                    returnString += f"Below are the name and the frequency of members that {instring} has stood with\n" # Output the information from the dictionaries
+                    returnString += f"Vocal  | {max_voc_name} : {max_voc_val}\n"
+                    returnString += f"Guitar | {max_guitar_name} : {max_guitar_val}\n"
+                elif r == 'V':
 
-                qry = f"""
-                SELECT Song_leader2, COUNT(Song_leader2) 
-                FROM Roster 
-                WHERE Song_leader1 = '{instring}'
-                AND Song_leader2 != ''
-                GROUP BY Song_leader2
-                ORDER BY COUNT(Song_leader2) DESC
-                """
-                cur.execute(qry)
-                update_dict(cur.fetchall())
-                qry = f"""
-                SELECT Vocal, COUNT(Vocal)
-                FROM Roster
-                WHERE Song_leader1 = '{instring}'
-                AND Vocal != ''
-                GROUP BY Vocal
-                ORDER BY COUNT(Vocal) DESC
-                """
-                cur.execute(qry)
-                update_dict(cur.fetchall())
-                qry = f"""
-                SELECT Song_leader1, COUNT(Song_leader1)
-                FROM Roster
-                WHERE Song_leader2 = '{instring}'
-                GROUP BY Song_leader1
-                ORDER BY COUNT(Song_leader1) DESC
-                """
-                cur.execute(qry)
-                update_dict(cur.fetchall())
+                    qry = f"""
+                    SELECT Song_leader2, COUNT(Song_leader2) 
+                    FROM Roster 
+                    WHERE Song_leader1 = '{instring}'
+                    AND Song_leader2 != ''
+                    GROUP BY Song_leader2
+                    ORDER BY COUNT(Song_leader2) DESC
+                    """
+                    cur.execute(qry)
+                    update_dict(cur.fetchall())
+                    qry = f"""
+                    SELECT Vocal, COUNT(Vocal)
+                    FROM Roster
+                    WHERE Song_leader1 = '{instring}'
+                    AND Vocal != ''
+                    GROUP BY Vocal
+                    ORDER BY COUNT(Vocal) DESC
+                    """
+                    cur.execute(qry)
+                    update_dict(cur.fetchall())
+                    qry = f"""
+                    SELECT Song_leader1, COUNT(Song_leader1)
+                    FROM Roster
+                    WHERE Song_leader2 = '{instring}'
+                    GROUP BY Song_leader1
+                    ORDER BY COUNT(Song_leader1) DESC
+                    """
+                    cur.execute(qry)
+                    update_dict(cur.fetchall())
 
-                qry = f"""
-                SELECT Vocal, COUNT(Vocal)
-                FROM Roster
-                WHERE Song_leader2 = '{instring}'
-                AND Vocal != ''
-                GROUP BY Vocal
-                ORDER BY COUNT(Vocal) DESC
-                """
-                cur.execute(qry)
-                update_dict(cur.fetchall())
+                    qry = f"""
+                    SELECT Vocal, COUNT(Vocal)
+                    FROM Roster
+                    WHERE Song_leader2 = '{instring}'
+                    AND Vocal != ''
+                    GROUP BY Vocal
+                    ORDER BY COUNT(Vocal) DESC
+                    """
+                    cur.execute(qry)
+                    update_dict(cur.fetchall())
 
-                qry = f"""
-                SELECT Song_leader1, COUNT(Song_leader1)
-                FROM Roster
-                WHERE Vocal = '{instring}'
-                GROUP BY Song_leader1
-                ORDER BY COUNT(Song_leader1) DESC
-                """
-                cur.execute(qry)
-                update_dict(cur.fetchall())
+                    qry = f"""
+                    SELECT Song_leader1, COUNT(Song_leader1)
+                    FROM Roster
+                    WHERE Vocal = '{instring}'
+                    GROUP BY Song_leader1
+                    ORDER BY COUNT(Song_leader1) DESC
+                    """
+                    cur.execute(qry)
+                    update_dict(cur.fetchall())
 
-                qry = f"""
-                SELECT Song_leader2, COUNT(Song_leader2)
-                FROM Roster
-                WHERE Vocal = '{instring}'
-                AND Song_leader2 != ''
-                GROUP BY Song_leader2
-                ORDER BY COUNT(Song_leader2) DESC
-                """
-                cur.execute(qry)
-                update_dict(cur.fetchall())
-                max_voc_name = max(dict.items(), key=operator.itemgetter(1))[0] # Grab the name of the vocalist member who has stood most with the given member
-                max_voc_val = dict[max_voc_name]                                # Find the frequency of the vocalist member that stood the most with the given member
-                dict = dict.fromkeys(dict,0)                                    # Reset dictionary
-                qry = f"""
-                SELECT keys, COUNT(keys)
-                FROM Roster
-                WHERE Song_leader1 = '{instring}'
-                OR Song_leader2 = '{instring}'
-                OR Vocal = '{instring}'
-                GROUP BY Keys
-                ORDER BY COUNT(Keys) DESC
-                """
-                cur.execute(qry)
-                info = cur.fetchone()
-                max_keys_name = info[0].strip()     # Grab the name of the pianist member who has stood most with the given member
-                max_keys_val = info[1]	            # Find the frequency of the pianist that stood the most with the given member
+                    qry = f"""
+                    SELECT Song_leader2, COUNT(Song_leader2)
+                    FROM Roster
+                    WHERE Vocal = '{instring}'
+                    AND Song_leader2 != ''
+                    GROUP BY Song_leader2
+                    ORDER BY COUNT(Song_leader2) DESC
+                    """
+                    cur.execute(qry)
+                    update_dict(cur.fetchall())
+                    max_voc_name = max(dict.items(), key=operator.itemgetter(1))[0] # Grab the name of the vocalist member who has stood most with the given member
+                    max_voc_val = dict[max_voc_name]                                # Find the frequency of the vocalist member that stood the most with the given member
+                    dict = dict.fromkeys(dict,0)                                    # Reset dictionary
+                    qry = f"""
+                    SELECT keys, COUNT(keys)
+                    FROM Roster
+                    WHERE Song_leader1 = '{instring}'
+                    OR Song_leader2 = '{instring}'
+                    OR Vocal = '{instring}'
+                    GROUP BY Keys
+                    ORDER BY COUNT(Keys) DESC
+                    """
+                    cur.execute(qry)
+                    info = cur.fetchone()
+                    max_keys_name = info[0].strip()     # Grab the name of the pianist member who has stood most with the given member
+                    max_keys_val = info[1]	            # Find the frequency of the pianist that stood the most with the given member
 
-                qry = f"""
-                SELECT Guitar_1, COUNT(Guitar_1)
-                FROM Roster
-                WHERE Song_leader1 = '{instring}'
-                OR Song_leader2 = '{instring}'
-                OR Vocal = '{instring}'
-                GROUP BY Guitar_1
-                ORDER BY COUNT(Guitar_1) DESC
-                """
-                cur.execute(qry)
-                update_dict(cur.fetchall())
+                    qry = f"""
+                    SELECT Guitar_1, COUNT(Guitar_1)
+                    FROM Roster
+                    WHERE Song_leader1 = '{instring}'
+                    OR Song_leader2 = '{instring}'
+                    OR Vocal = '{instring}'
+                    GROUP BY Guitar_1
+                    ORDER BY COUNT(Guitar_1) DESC
+                    """
+                    cur.execute(qry)
+                    update_dict(cur.fetchall())
 
-                qry = f"""
-                SELECT Guitar_2, COUNT(Guitar_2)
-                FROM Roster
-                WHERE (Song_leader1 = '{instring}'
-                OR Song_leader2 = '{instring}'
-                OR Vocal = '{instring}')
-                AND Guitar_2 != ''
-                GROUP BY Guitar_2
-                ORDER BY COUNT(Guitar_2) DESC
-                """
-                cur.execute(qry)
-                update_dict(cur.fetchall())
-                max_guitar_name = max(dict.items(), key=operator.itemgetter(1))[0]  # Grab the name of the guitarist who has stood the most with the given member
-                max_guitar_val = dict[max_guitar_name]                              # Find the frequency of the guitarist who has stood the most with the given member
+                    qry = f"""
+                    SELECT Guitar_2, COUNT(Guitar_2)
+                    FROM Roster
+                    WHERE (Song_leader1 = '{instring}'
+                    OR Song_leader2 = '{instring}'
+                    OR Vocal = '{instring}')
+                    AND Guitar_2 != ''
+                    GROUP BY Guitar_2
+                    ORDER BY COUNT(Guitar_2) DESC
+                    """
+                    cur.execute(qry)
+                    update_dict(cur.fetchall())
+                    max_guitar_name = max(dict.items(), key=operator.itemgetter(1))[0]  # Grab the name of the guitarist who has stood the most with the given member
+                    max_guitar_val = dict[max_guitar_name]                              # Find the frequency of the guitarist who has stood the most with the given member
 
-                returnString += f"Below are the name and the frequency of members that {instring} has stood with\n"    # Output the information from the dictionaries
-                returnString += f" Vocal  | {max_voc_name} : {max_voc_val}\n"
-                returnString += f" Guitar | {max_guitar_name} : {max_guitar_val}\n"
-                returnString += f"Keys   | {max_keys_name} : {max_keys_val}\n"
-            elif r == 'K':
-                qry = f"""
-                SELECT Song_leader1, COUNT(Song_leader1)
-                FROM Roster
-                WHERE Keys = '{instring}'
-                OR Pads = '{instring}'
-                GROUP BY Song_leader1
-                ORDER BY COUNT(Song_leader1) DESC
-                """
-                cur.execute(qry)
-                update_dict(cur.fetchall())
+                    returnString += f"Below are the name and the frequency of members that {instring} has stood with\n"    # Output the information from the dictionaries
+                    returnString += f" Vocal  | {max_voc_name} : {max_voc_val}\n"
+                    returnString += f" Guitar | {max_guitar_name} : {max_guitar_val}\n"
+                    returnString += f"Keys   | {max_keys_name} : {max_keys_val}\n"
+                elif r == 'K':
+                    qry = f"""
+                    SELECT Song_leader1, COUNT(Song_leader1)
+                    FROM Roster
+                    WHERE Keys = '{instring}'
+                    OR Pads = '{instring}'
+                    GROUP BY Song_leader1
+                    ORDER BY COUNT(Song_leader1) DESC
+                    """
+                    cur.execute(qry)
+                    update_dict(cur.fetchall())
 
-                qry = f"""
-                SELECT Song_leader2, COUNT(Song_leader2)
-                FROM Roster
-                WHERE (Keys = '{instring}'
-                OR Pads = '{instring}')
-                AND Song_leader2 != ''
-                GROUP BY Song_leader2
-                ORDER BY COUNT(Song_leader2) DESC
-                """
-                cur.execute(qry)
-                update_dict(cur.fetchall())
+                    qry = f"""
+                    SELECT Song_leader2, COUNT(Song_leader2)
+                    FROM Roster
+                    WHERE (Keys = '{instring}'
+                    OR Pads = '{instring}')
+                    AND Song_leader2 != ''
+                    GROUP BY Song_leader2
+                    ORDER BY COUNT(Song_leader2) DESC
+                    """
+                    cur.execute(qry)
+                    update_dict(cur.fetchall())
 
-                qry = f"""
-                SELECT Vocal, COUNT(Vocal)
-                FROM Roster
-                WHERE (Keys = '{instring}'
-                OR Pads = '{instring}')
-                AND Vocal != ''
-                GROUP BY Vocal
-                ORDER BY COUNT(Vocal) DESC
-                """
-                cur.execute(qry)
-                update_dict(cur.fetchall())
+                    qry = f"""
+                    SELECT Vocal, COUNT(Vocal)
+                    FROM Roster
+                    WHERE (Keys = '{instring}'
+                    OR Pads = '{instring}')
+                    AND Vocal != ''
+                    GROUP BY Vocal
+                    ORDER BY COUNT(Vocal) DESC
+                    """
+                    cur.execute(qry)
+                    update_dict(cur.fetchall())
 
-                max_voc_name = max(dict.items(), key=operator.itemgetter(1))[0] # Grab the name of the vocalist who has stood the most with the given member
-                max_voc_val = dict[max_voc_name]                                # Find the frequency of the vocalist who has stood the most with the given member
-                dict = dict.fromkeys(dict,0)                                    # Reset the dictionary
+                    max_voc_name = max(dict.items(), key=operator.itemgetter(1))[0] # Grab the name of the vocalist who has stood the most with the given member
+                    max_voc_val = dict[max_voc_name]                                # Find the frequency of the vocalist who has stood the most with the given member
+                    dict = dict.fromkeys(dict,0)                                    # Reset the dictionary
 
-                qry = f"""
-                SELECT Guitar_1, COUNT(Guitar_1)
-                FROM Roster
-                WHERE Keys = '{instring}'
-                GROUP BY Guitar_1
-                ORDER BY COUNT(Guitar_1) DESC
-                """
-                cur.execute(qry)
-                update_dict(cur.fetchall())
+                    qry = f"""
+                    SELECT Guitar_1, COUNT(Guitar_1)
+                    FROM Roster
+                    WHERE Keys = '{instring}'
+                    GROUP BY Guitar_1
+                    ORDER BY COUNT(Guitar_1) DESC
+                    """
+                    cur.execute(qry)
+                    update_dict(cur.fetchall())
 
-                qry = f"""
-                SELECT Guitar_2, COUNT(Guitar_2)
-                FROM Roster
-                WHERE Keys = '{instring}'
-                AND Guitar_2 != ''
-                GROUP BY Guitar_2
-                ORDER BY COUNT(Guitar_2) DESC
-                """
-                cur.execute(qry)
-                update_dict(cur.fetchall())
-                max_guitar_name = max(dict.items(), key=operator.itemgetter(1))[0]  # Grab the name of the guitarist who has stood the most with the given member
-                max_guitar_val = dict[max_guitar_name]                              # Find the frequency of the guitarist who has stood the most with the given member
+                    qry = f"""
+                    SELECT Guitar_2, COUNT(Guitar_2)
+                    FROM Roster
+                    WHERE Keys = '{instring}'
+                    AND Guitar_2 != ''
+                    GROUP BY Guitar_2
+                    ORDER BY COUNT(Guitar_2) DESC
+                    """
+                    cur.execute(qry)
+                    update_dict(cur.fetchall())
+                    max_guitar_name = max(dict.items(), key=operator.itemgetter(1))[0]  # Grab the name of the guitarist who has stood the most with the given member
+                    max_guitar_val = dict[max_guitar_name]                              # Find the frequency of the guitarist who has stood the most with the given member
 
-                returnString += f"Below are the name and the frequency of members that {instring} has stood with\n"    # Output the information from the dictionaries
-                returnString += f"Vocal  | {max_voc_name} : {max_voc_val}\n"
-                returnString += f"Guitar | {max_guitar_name} : {max_guitar_val}\n"
+                    returnString += f"Below are the name and the frequency of members that {instring} has stood with\n"    # Output the information from the dictionaries
+                    returnString += f"Vocal  | {max_voc_name} : {max_voc_val}\n"
+                    returnString += f"Guitar | {max_guitar_name} : {max_guitar_val}\n"
 
-            elif r == 'D':
-                qry = f"""
-                SELECT Song_leader1, COUNT(Song_leader1)
-                FROM Roster
-                WHERE Drum = '{instring}'
-                GROUP BY Song_leader1
-                ORDER BY COUNT(Song_leader1) DESC
-                """
-                cur.execute(qry)
-                update_dict(cur.fetchall())
+                elif r == 'D':
+                    qry = f"""
+                    SELECT Song_leader1, COUNT(Song_leader1)
+                    FROM Roster
+                    WHERE Drum = '{instring}'
+                    GROUP BY Song_leader1
+                    ORDER BY COUNT(Song_leader1) DESC
+                    """
+                    cur.execute(qry)
+                    update_dict(cur.fetchall())
 
-                qry = f"""
-                SELECT Song_leader2, COUNT(Song_leader2) 
-                FROM Roster 
-                WHERE Drum = '{instring}'
-                AND Song_leader2 != ''
-                GROUP BY Song_leader2
-                ORDER BY COUNT(Song_leader2) DESC
-                """
-                cur.execute(qry)
-                update_dict(cur.fetchall())
+                    qry = f"""
+                    SELECT Song_leader2, COUNT(Song_leader2) 
+                    FROM Roster 
+                    WHERE Drum = '{instring}'
+                    AND Song_leader2 != ''
+                    GROUP BY Song_leader2
+                    ORDER BY COUNT(Song_leader2) DESC
+                    """
+                    cur.execute(qry)
+                    update_dict(cur.fetchall())
 
-                qry = f"""
-                SELECT Vocal, COUNT(Vocal)
-                FROM Roster
-                WHERE Drum = '{instring}'
-                AND Vocal != ''
-                GROUP BY Vocal
-                ORDER BY COUNT(Vocal) DESC
-                """
-                cur.execute(qry)
-                update_dict(cur.fetchall())
+                    qry = f"""
+                    SELECT Vocal, COUNT(Vocal)
+                    FROM Roster
+                    WHERE Drum = '{instring}'
+                    AND Vocal != ''
+                    GROUP BY Vocal
+                    ORDER BY COUNT(Vocal) DESC
+                    """
+                    cur.execute(qry)
+                    update_dict(cur.fetchall())
 
-                max_voc_name = max(dict.items(), key=operator.itemgetter(1))[0] # Grab the name of the vocalist who has stood the most with the given member
-                max_voc_val = dict[max_voc_name]                                # Find the frequency of the vocalist who has stood the most with the given member
-                dict = dict.fromkeys(dict,0)                                    # Reset dictionary
-                qry = f"""
-                SELECT Keys, COUNT(keys)
-                FROM Roster
-                WHERE Drum = '{instring}'
-                GROUP BY Keys
-                ORDER BY COUNT(Keys) DESC
-                """
-                cur.execute(qry)
-                info = cur.fetchone()
-                max_keys_name = info[0].strip()                                # Grab the name of the pianist who has stood the most with the given member
-                max_keys_val = info[1]	                                       # Find the frequency of the pianist who has stood the most with the given member
+                    max_voc_name = max(dict.items(), key=operator.itemgetter(1))[0] # Grab the name of the vocalist who has stood the most with the given member
+                    max_voc_val = dict[max_voc_name]                                # Find the frequency of the vocalist who has stood the most with the given member
+                    dict = dict.fromkeys(dict,0)                                    # Reset dictionary
+                    qry = f"""
+                    SELECT Keys, COUNT(keys)
+                    FROM Roster
+                    WHERE Drum = '{instring}'
+                    GROUP BY Keys
+                    ORDER BY COUNT(Keys) DESC
+                    """
+                    cur.execute(qry)
+                    info = cur.fetchone()
+                    max_keys_name = info[0].strip()                                # Grab the name of the pianist who has stood the most with the given member
+                    max_keys_val = info[1]	                                       # Find the frequency of the pianist who has stood the most with the given member
 
-                qry = f"""
-                SELECT Guitar_1, COUNT(Guitar_1)
-                FROM Roster
-                WHERE Drum = '{instring}'
-                GROUP BY Guitar_1
-                ORDER BY COUNT(Guitar_1) DESC
-                """
-                cur.execute(qry)
-                update_dict(cur.fetchall())
+                    qry = f"""
+                    SELECT Guitar_1, COUNT(Guitar_1)
+                    FROM Roster
+                    WHERE Drum = '{instring}'
+                    GROUP BY Guitar_1
+                    ORDER BY COUNT(Guitar_1) DESC
+                    """
+                    cur.execute(qry)
+                    update_dict(cur.fetchall())
 
-                qry = f"""
-                SELECT Guitar_2, COUNT(Guitar_2)
-                FROM Roster
-                WHERE Drum = '{instring}'
-                AND Guitar_2 != ''
-                GROUP BY Guitar_2
-                ORDER BY COUNT(Guitar_2) DESC
-                """
-                cur.execute(qry)
-                update_dict(cur.fetchall())
-                max_guitar_name = max(dict.items(), key=operator.itemgetter(1))[0]  # Grab the name of the guitarist who has stood the most with the given member
-                max_guitar_val = dict[max_guitar_name]                              # Find the frequency of the guitarist who has stood the msot with the given member
+                    qry = f"""
+                    SELECT Guitar_2, COUNT(Guitar_2)
+                    FROM Roster
+                    WHERE Drum = '{instring}'
+                    AND Guitar_2 != ''
+                    GROUP BY Guitar_2
+                    ORDER BY COUNT(Guitar_2) DESC
+                    """
+                    cur.execute(qry)
+                    update_dict(cur.fetchall())
+                    max_guitar_name = max(dict.items(), key=operator.itemgetter(1))[0]  # Grab the name of the guitarist who has stood the most with the given member
+                    max_guitar_val = dict[max_guitar_name]                              # Find the frequency of the guitarist who has stood the msot with the given member
 
-                returnString += f"Below are the name and the frequency of members that {instring} has stood with\n"    # Output the information from the dictionaries
-                returnString += f" Vocal  | {max_voc_name} : {max_voc_val}\n"
-                returnString += f" Guitar | {max_guitar_name} : {max_guitar_val}\n"
-                returnString += f"Keys   | {max_keys_name} : {max_keys_val}\n"
+                    returnString += f"Below are the name and the frequency of members that {instring} has stood with\n"    # Output the information from the dictionaries
+                    returnString += f" Vocal  | {max_voc_name} : {max_voc_val}\n"
+                    returnString += f" Guitar | {max_guitar_name} : {max_guitar_val}\n"
+                    returnString += f"Keys   | {max_keys_name} : {max_keys_val}\n"
 
             qry = f"""
             SELECT Songs.title 
@@ -1439,4 +1453,57 @@ def add_roster(month, song_leader1, song_leader2, vocal, guitar_1, guitar_2, key
         if db:
             db.close()
     
+def rewind():
+    usage = "Usage: rewind.py 'rewind'"
+    db = None
+    
+    returnString = "\nThis is a summary for our New Life Praise Team 2022\n"
+    returnString += "---------------------------------------------------\n\n"
+    
+    
+    try:
+        db = psycopg2.connect("dbname=nlpt22")
+        cur = db.cursor()
+        cur.execute("SELECT COUNT(songs), Sundays.date FROM Songs, Sundays WHERE Sundays.id = (SELECT max(id) FROM Sundays) GROUP BY Sundays.date")
+        numSongs, last_commit = cur.fetchone()  # Fetch the number of song the praise team has done throughout the year and also the last Sunday the database was updated
+
+        returnString += f"Up until {last_commit}, we have done {numSongs} songs\n"   # output information relevant to the above fetch
+        returnString += f"Out of {numSongs} songs, we have done:\n"
+        qry = "SELECT Artists.name, count(Songs.artistid) FROM Artists, Songs WHERE Artists.id = Songs.artistid GROUP BY Artists.name ORDER BY COUNT DESC"
+        cur.execute(qry)
+        info = cur.fetchall()   # Fetch all names of the Artists and the number of songs they have appeared in Newlife
+        for item in info:   # Loop through the fetched information and output the relevant name and frequency of the artists
+            if int(item[1]) == 1:
+                returnString += f"• {item[1]} song is from {item[0].strip()}\n"    # if the artist only appeared once
+            else:
+                returnString += f"• {item[1]} songs are from {item[0].strip()}\n"  # if the artist appeared more than once
+        qry = """
+        SELECT Songs.title as songs, Artists.name as artists, count(sunday_songs.sundayid) as count
+        FROM Songs, Artists, Sundays, Sunday_songs 
+        WHERE Songs.artistid = Artists.id 
+        AND Sunday_songs.songid = Songs.id 
+        AND Sunday_songs.sundayid = Sundays.id 
+        GROUP BY Songs.title, Artists.name 
+        ORDER BY count DESC, songs ASC
+        """
+        cur.execute(qry)
+        info = cur.fetchall()   # Fetch song name and artist and the frequency they appeared on Sundays
+        returnString += "\nBelow are the songs, artists and the number of times the song was done throughout this year\n\n"
+        for item in info:   # Loop through songs and output the information in the format: Title | Artist | Frequency
+            returnString += f"{item[0]} | {item[1]} | {item[2]}\n"
+
+        returnString += "\n\n--MEMBERS--"
+        cur.execute("SELECT name from Members")
+        memberInfo = cur.fetchall() # Fetch names of members
+
+        for item in memberInfo:
+            returnString += member_search(item[0].strip()) + '\n'    # Loop through each members and run member_search
+
         
+        return returnString
+    except psycopg2.Error as err:
+        print("DB error: ", err)
+    finally:
+        if db:
+            db.close()
+      
