@@ -1045,10 +1045,20 @@ def month_roster_search(txt):
             FROM Roster
             """
         else:    
+            d = sList[0]
+            year = d[2:4]
+            month = d[5:7]
+            day = d[8:10]
+            
+            first_sun = day + "." + month + "." + year
+            qry = f"SELECT id FROM Sundays WHERE date = '{first_sun}'"
+            cur.execute(qry)
+            fID = cur.fetchone()[0]
+            
             qry = f"""
                 SELECT song_leader1, song_leader2, vocal, guitar_1, guitar_2, keys, drum, pads 
                 FROM roster 
-                WHERE month = '{mth}'
+                WHERE month = '{mth}' AND id >= {fID}
                 """
         cur.execute(qry)
         info = cur.fetchall()

@@ -80,6 +80,7 @@ def search_result(searchResult):
                   <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/members.html">Members</a></li>
                   <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/roster.html">Roster</a></li>
                   <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/add.html">Add</a></li>
+                  <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/rewind.html">Rewind</a></li>
                </ul>
             </div>
          </div>
@@ -171,6 +172,7 @@ def sundays_post():
                   <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/members.html">Members</a></li>
                   <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/roster.html">Roster</a></li>
                   <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/add.html">Add</a></li>
+                  <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/rewind.html">Rewind</a></li>
                </ul>
             </div>
          </div>
@@ -283,6 +285,7 @@ def sunday_result(searchResult):
                   <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/members.html">Members</a></li>
                   <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/roster.html">Roster</a></li>
                   <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/add.html">Add</a></li>
+                  <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/rewind.html">Rewind</a></li>
                </ul>
             </div>
          </div>
@@ -380,6 +383,7 @@ def members():
                   <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/members.html">Members</a></li>
                   <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/roster.html">Roster</a></li>
                   <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/add.html">Add</a></li>
+                  <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/rewind.html">Rewind</a></li>
                </ul>
             </div>
          </div>
@@ -489,6 +493,7 @@ def roster():
                   <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/members.html">Members</a></li>
                   <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/roster.html">Roster</a></li>
                   <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/add.html">Add</a></li>
+                  <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/rewind.html">Rewind</a></li>
                </ul>
             </div>
          </div>
@@ -584,6 +589,7 @@ def roster_result(searchResult):
                   <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/members.html">Members</a></li>
                   <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/roster.html">Roster</a></li>
                   <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/add.html">Add</a></li>
+                  <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/rewind.html">Rewind</a></li>
                </ul>
             </div>
          </div>
@@ -685,6 +691,7 @@ def add():
                     <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/members.html">Members</a></li>
                     <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/roster.html">Roster</a></li>
                     <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/add.html">Add</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/rewind.html">Rewind</a></li>
                 </ul>
             </div>
             </div>
@@ -779,6 +786,7 @@ def add():
                     <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/members.html">Members</a></li>
                     <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/roster.html">Roster</a></li>
                     <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/add.html">Add</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/rewind.html">Rewind</a></li>
                 </ul>
             </div>
             </div>
@@ -888,6 +896,7 @@ def add_member_post():
                     <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/members.html">Members</a></li>
                     <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/roster.html">Roster</a></li>
                     <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/add.html">Add</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/rewind.html">Rewind</a></li>
                 </ul>
             </div>
             </div>
@@ -1088,6 +1097,7 @@ def add_sunday_post():
                     <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/members.html">Members</a></li>
                     <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/roster.html">Roster</a></li>
                     <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/add.html">Add</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/rewind.html">Rewind</a></li>
                 </ul>
             </div>
             </div>
@@ -1311,6 +1321,7 @@ def add_month():
                     <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/members.html">Members</a></li>
                     <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/roster.html">Roster</a></li>
                     <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/add.html">Add</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/rewind.html">Rewind</a></li>
                 </ul>
             </div>
             </div>
@@ -1563,6 +1574,7 @@ def add_roster_post():
                     <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/members.html">Members</a></li>
                     <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/roster.html">Roster</a></li>
                     <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/add.html">Add</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/rewind.html">Rewind</a></li>
                 </ul>
             </div>
             </div>
@@ -1615,6 +1627,10 @@ def add_roster_post():
    
    else:
       return render_template('add_roster.html')
+
+@app.route('/rewind.html', methods=['POST','GET'])
+def rewind():
+   return render_template('rewind.html')
 
 
 
