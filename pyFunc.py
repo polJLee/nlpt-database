@@ -1067,7 +1067,6 @@ def month_roster_search(txt):
                     list.append(name)
             roster.append(list)
 
-        print(roster)
         if txt == 'all' or txt == 'All':
             returnString = "\n"
             for m in range(1,12):
@@ -1360,11 +1359,58 @@ def add_roster(month, song_leader1, song_leader2, vocal, guitar_1, guitar_2, key
             """
             cur.execute(qry)
             db.commit()
-        qry = f"SELECT month, song_leader1, song_leader2, vocal, guitar_1, guitar_2, keys, drum, pads WHERE id > {id}"
+        qry = f"SELECT song_leader1, song_leader2, vocal, guitar_1, guitar_2, keys, drum, pads FROM Roster WHERE id > {id}"
         cur.execute(qry)
         results = cur.fetchall()
-        returnString = results
         
+        today = datetime.date.today()
+        Months = {
+                "January"   : 1,
+                "Februrary" : 2,
+                "March"     : 3,   #Good Friday
+                "April"     : 4,   #Good Friday
+                "May"       : 5,
+                "June"      : 6,    #Wintercon
+                "July"      : 7,    #Wintercon
+                "August"    : 8,
+                "September" : 9,
+                "October"   : 10,
+                "November"  : 11,
+                "December"  : 12    #Christmas
+               }
+        
+    
+        sList = sundays(Months[month], today.year)
+        returnString = "\n"
+        RolesList = []
+        NamesList = []
+        for i in range(0, len(results)):
+            Roles = []
+            names = []
+            roster = results[i]
+            RoleStandard = ["Song Leader 1", "Song Leader 2", "Vocal", "Guitar 1", "Guitar 2", "Keys", "Drum", "Pads"]
+            for j in range(0, len(RoleStandard)):
+                if roster[j] != '               ':
+                    names.append(roster[j])
+                    Roles.append(RoleStandard[j])
+                j += 1
+            RolesList.append(Roles)
+            NamesList.append(names)
+            i += 1
+        
+        print(RolesList)
+        print(NamesList)
+        
+        for k in range(0,len(results)):
+            names = NamesList[k]
+            returnString += f"{sList[k]}\n"
+            r = RolesList[k]
+            name = NamesList[k]
+            for m in range(0, len(name)):
+                returnString += f"  {r[m]} : {name[m].strip()}\n"         #   add Roles into a new list for each Sundays
+                m += 1
+            k += 1
+                        
         return returnString
         
     except psycopg2.Error as err:

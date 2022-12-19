@@ -4,7 +4,7 @@ import os
 from sundays import sundays
 from pyFunc import song_search, sunday_search, member_search, artist_search, roster_search, month_sunday_search, month_roster_search
 from pyFunc import show_sunday, show_members
-from pyFunc import add_member, add_sunday
+from pyFunc import add_member, add_sunday, add_roster
 from pyFunc import numWeeks
 
 # Defined Globals
@@ -1320,12 +1320,9 @@ def add_month():
         <div class="span12">
             <div class="col-md-6 no-gutter text-center fill">
             <br>
-            <br>
-            <br> 
-            <h2 class="center">Add Roster</h2>
             """
-                
       text2 = """<br>
+            <br>
             <br>
             <br>
             <a href="http://127.0.0.1:5000/add_roster_result.html">
@@ -1401,13 +1398,14 @@ def add_month():
                      Pads
                   </p>
                   <input type="text" name="P_{i+1}" size=30>
+                  <br>
                 </div>"""
             f.write(input)
             i += 1
          f.write(text2)
          f.close()
       
-      return redirect(url_for('add_roster_post', variable=numWeek))
+      return redirect(url_for('add_roster_post', variable=numWeek, mText = request.form.get('mText')))
    else:
       text = """<!DOCTYPE html>
       <html lang="en">
@@ -1503,8 +1501,13 @@ def add_month():
 
 @app.route('/add_roster.html', methods=['POST','GET'])
 def add_roster_post():
-   numWeek = request.form.get('variable')
+   
    if request.method == 'POST':
+      numWeek = int(request.args.get('variable'))
+      month = request.args.get('mText')
+      print(numWeek)
+      print(month)
+      
       song_leader1 = []
       song_leader2 = []
       vocal = []
@@ -1525,10 +1528,93 @@ def add_roster_post():
          Drums.append(request.form.get(f'D_{i+1}'))
          Pads.append(request.form.get(f'P_{i+1}'))
          i += 1
-      
-      
+      results = add_roster(month, song_leader1, song_leader2, vocal, Guitar_1, Guitar_2, Keys, Drums, Pads)
+      text1 = """<!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <title>NLPT22</title>
+        <!-- Css -->
+        <link rel="stylesheet" href="{{ url_for('static',filename='bootstrap.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}">
+      </head>
+      <body>
+        <nav class="navbar navbar-default navbar-fixed-top">
+            <div class="col-md-12">
+            <div class="nav">
+                <button class="btn-nav">
+                <span class="icon-bar inverted top"></span>
+                <span class="icon-bar inverted middle"></span>
+                <span class="icon-bar inverted bottom"></span>
+                </button>
+            </div>
+            <a class="navbar-brand" href="http://127.0.0.1:5000/">
+            <img class="logo" src="{{url_for('static', filename='logo.png')}}" alt="logo">
+            </a>
+            <div class="nav-content hideNav hidden">
+                <ul class="nav-list vcenter">
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/">Home</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/search.html">Search</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/sundays.html">Sundays</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/members.html">Members</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/roster.html">Roster</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/add.html">Add</a></li>
+                </ul>
+            </div>
+            </div>
+        </nav>
+        <!-- Header -->
+
+        <div class="span12">
+            <div class="col-md-6 no-gutter text-center fill">
+            <br>
+            <br>
+            <br>
+            """
+      text2 = f"""<pre>
+                     {results}
+                  </pre>
+                  <br>"""
+      text3 = """
+            <a href="http://127.0.0.1:5000/add.html">
+                <button class="btn">Back</button>
+            </a>
+            </div>
+
+            <div class="col-md-6 no-gutter text-center">
+            <div id="header" data-speed="2" data-type="background">
+                <div id="headslide" class="carousel slide" data-ride="carousel">
+                    <div class="carousel-inner" role="listbox">
+                        <div class="item active"><img src="{{url_for('static',filename='add.jpg')}}" alt="Slide">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+        <div style="clear:both;"></div>
+        <!-- script -->
+        <script src="{{url_for('static',filename='jquery.js') }}"> </script>
+        <script src="{{url_for('static',filename='bootstrap.min.js') }}"> </script> 
+        <script src="{{url_for('static',filename='menu-color.js') }}"> </script>
+        <script src="{{url_for('static',filename='modernizer.js') }}"> </script>
+        <script src="{{url_for('static',filename='script.js') }}"> </script>
+         </body>
+         </html>"""
    
-   return render_template('add_roster.html')
+      with open('/Users/paullee/Downloads/nlpt-database/templates/add_roster_result.html', 'w', encoding='utf-8') as f:
+         f.write(text1)
+         f.write(text2)
+         f.write(text3)
+         f.close()
+      return render_template('add_roster_result.html')
+   
+   else:
+      return render_template('add_roster.html')
 
 
 
