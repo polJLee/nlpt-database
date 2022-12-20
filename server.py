@@ -1682,7 +1682,7 @@ def rewind_post():
             <br> 
             <h2 class="center">Rewind</h2>
             <br>
-            <pre style="height:1000px; max_width=85ch;">"""
+            <pre style="height:500px;">"""
    text2 = f"""
             {rw}
             </pre>
