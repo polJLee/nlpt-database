@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-    <html lang="en">
-    <head>
+      <html lang="en">
+      <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -10,8 +10,8 @@
         <!-- Css -->
         <link rel="stylesheet" href="{{ url_for('static',filename='bootstrap.css') }}">
         <link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}">
-    </head>
-    <body>
+      </head>
+      <body>
         <nav class="navbar navbar-default navbar-fixed-top">
             <div class="col-md-12">
             <div class="nav">
@@ -48,16 +48,19 @@
             <br>
             <br>
             <br> 
-            <h2 class="center">Add</h2>
-            <form role="form" method="POST">
-                <input type="submit" name="button" value="Add Sunday">
-                <input type="submit" name="button" value="Add Member">
-                <input type="submit" name="button" value="Add Roster">
+            <h2 class="center">Enter Passcode</h2><form role="form" method="POST" action="">
+                <div class="row my-4">
+                    <div class="pinBox">
+                        <input class="pinEntry" name="token" type=text maxlength=4 autocomplete=off >
+                    </div>
+                </div>
+                <a href="http://127.0.0.1:5000/edit_options.html">
+                    <button class="btn">Enter</button>
+                 </a>
             </form>
             <br>
             <br>
             <br>
-            
             
             </div>
 
@@ -65,7 +68,7 @@
             <div id="header" data-speed="2" data-type="background">
                 <div id="headslide" class="carousel slide" data-ride="carousel">
                     <div class="carousel-inner" role="listbox">
-                        <div class="item active"><img src="{{url_for('static',filename='add.jpg')}}" alt="Slide">
+                        <div class="item active"><img src="{{url_for('static',filename='edit.jpg')}}" alt="Slide">
                         </div>
                     </div>
                 </div>
@@ -79,5 +82,5 @@
         <script src="{{url_for('static',filename='menu-color.js') }}"> </script>
         <script src="{{url_for('static',filename='modernizer.js') }}"> </script>
         <script src="{{url_for('static',filename='script.js') }}"> </script>
-    </body>
-</html>
+         </body>
+         </html>
