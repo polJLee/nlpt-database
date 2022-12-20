@@ -1255,11 +1255,12 @@ def add_sunday(date, sermon_title, passage, songs, artists):
                 aID = cur.fetchone()
 
                 if aID == None: # if the artist is not part of the database, create new artist and add it to the database
-                    aID = input(f"Enter new ID for new artist ({artists[i]}) in database:\n")    # Asks for input for an artist ID for the new artist
+                    
+                    aID = artists[i][0]    # Asks for input for an artist ID for the new artist
 
                     qry = f"""
                     INSERT INTO Artists (ID, Name)
-                    VALUES ({aID}, {artists[i]})
+                    VALUES ('{aID}', '{artists[i]}')
                     """
                     cur.execute(qry)
                     db.commit()
@@ -1506,4 +1507,5 @@ def rewind():
     finally:
         if db:
             db.close()
-      
+
+
