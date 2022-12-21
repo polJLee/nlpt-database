@@ -1256,7 +1256,7 @@ def add_sunday(date, sermon_title, passage, songs, artists):
 
                 if aID == None: # if the artist is not part of the database, create new artist and add it to the database
                     
-                    aID = artists[i][0]    # Asks for input for an artist ID for the new artist
+                    aID = (''.join(x for x in artists[i] if x.isupper()))
 
                     qry = f"""
                     INSERT INTO Artists (ID, Name)
@@ -1508,4 +1508,73 @@ def rewind():
         if db:
             db.close()
 
-
+def replace_song(date, song_title, r_title, r_artist):
+    day = int(date[0:2])
+    month = int(date[3:5])
+    year = int('20' + date[6:8])
+    d = datetime.date(year, month, day)
+    
+    if d.isoweekday() != 7:
+        returnString = f"\n{date} is not a Sunday\n"
+        return returnString
+    try:
+        db = psycopg2.connect(database="nlpt", user="pol", password="poljunhyeok0625", host="nlpt.chrjlburyp5p.ap-southeast-2.rds.amazonaws.com", port="5432")
+        cur = db.cursor()
+        qry = f"SELECT * FROM Sundays WHERE date = '{date}'"
+        cur.execute(qry)
+        info = cur.fetchall()
+        sundayid = info[0][0]
+        title = info[0][2]
+        passage = info[0][3].strip()
+        
+        if len(info) != 1:
+            returnString = f"\nSunday data for the date {date} doesn't exist\n"
+            return returnString
+        returnString = '\n'
+        cur.execute(f"SELECT id FROM Songs WHERE title = '{r_title}'")
+        rsongid = cur.fetchone()
+        cur.execute(f"SELECT id FROM Songs WHERE title = '{song_title}'")
+        osongid = cur.fetchone()
+        osongid = int(osongid[0])
+        
+        if rsongid is None:
+            cur.execute("SELECT MAX(ID) FROM Songs")
+            sID = cur.fetchone()[0] + 1
+            
+            qry = f"SELECT id FROM Artists WHERE name = '{r_artist}'"
+            cur.execute(qry)
+            aID = cur.fetchone()[0].strip()
+            
+            if aID == None:
+                aID = (''.join(i for i in r_artist if i.isupper()))
+                qry = f"""
+                INSERT INTO Artists (ID, Name)
+                VALUES('{aID}', '{r_artist}')
+                """
+                cur.execute(qry)
+                db.commit()
+                returnString += f"{r_artist} ({aID}) added as a new artists in the database\n"
+            qry = f"""
+            INSERT INTO Songs(ID, Title, ArtistID)
+            VALUES ({sID}, '{r_title}', '{aID}')
+            """
+            cur.execute(qry)
+            db.commit()
+            returnString += f"{sID} | {r_title} | {aID} add as a new song in the database\n"
+            rsongid = sID
+        else:
+            rsongid = int(rsongid[0])
+        qry = f"UPDATE Sunday_Songs SET songid = {rsongid} WHERE songid = {osongid} and sundayid = {sundayid}"
+        cur.execute(qry)
+        db.commit()
+        returnString += f"{song_title} removed\n{r_title} by {r_artist} added\n"
+        returnString += sunday_search(date)
+        
+        return returnString
+        
+                        
+    except psycopg2.Error as err:
+        print("DB error: ", err)
+    finally:
+        if db:
+            db.close()
