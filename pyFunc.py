@@ -317,6 +317,11 @@ def member_search(txt):
                 """
                 r = "D"
             else:   # sound
+                countqry = f"""
+                SELECT count(*)
+                FROM Roster
+                WHERE Drum = '{instring}'
+                """
                 sound = 1
 
             cur.execute(countqry)
@@ -357,7 +362,7 @@ def member_search(txt):
             
             if total_s == "" and total_v == "" and total != 0:
                 returnString += f"Since 2022, {instring} stood {total} times\n"
-            elif sound == 1:
+            elif sound == 1 and total == 0:
                 returnString += f"{instring} is rostered on the sound board every fortnight\n"
             elif total == 0:
                 returnString += f"{instring} has not been rostered yet"
@@ -1463,7 +1468,7 @@ def rewind():
     usage = "Usage: rewind.py 'rewind'"
     db = None
     
-    returnString = "\nThis is a summary for our New Life Praise Team 2022\n"
+    returnString = "\nThis is a summary for our New Life Praise Team Since 2022\n"
     returnString += "---------------------------------------------------\n\n"
     
     
