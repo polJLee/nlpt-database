@@ -48,15 +48,24 @@
             <br>
             <br>
             <br> 
-            <h2 class="center">Edit</h2>
-            <form role="form" method="POST">
-                <input type="submit" name="button" value="Replace Song">
-                <input type="submit" name="button" value="Add Song">
-                <input type="submit" name="button" value="Remove Song">
-                <input type="submit" name="button" value="Edit Passage">
-                <input type="submit" name="button" value="Edit Sermon Title">
-                <input type="submit" name="button" value="Remove Member">
-            </form>
+            <h2 class="center">Edit Sermon Title</h2>
+                <p>
+                    Insert the Sunday that you would like to Edit in the form [dd.mm.yy]
+                </p>
+                <form method='POST'>
+                    <input type='text' name = 'date' size='50'
+                    <br>
+                    <p>
+                        Insert the new title to replace the current sermon title
+                    </p>
+                    <input type='text' name = 'title', size='50'>
+                    <br>
+                    
+
+               <a href="http://127.0.0.1:5000/edit_result.html">
+                  <button class="btn">Submit</button>
+               </a>
+                </form>
             <br>
             <br>
             <br>

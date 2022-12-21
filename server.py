@@ -6,7 +6,7 @@ from pyFunc import song_search, sunday_search, member_search, artist_search, ros
 from pyFunc import show_sunday, show_members, rewind
 from pyFunc import add_member, add_sunday, add_roster
 from pyFunc import numWeeks
-from pyFunc import replace_song
+from pyFunc import replace_song, add_song, remove_song, change_passage, change_title, remove_member
 
 # Defined Globals
 TEMPLATE_DIR = os.path.abspath('/Users/paullee/Downloads/nlpt-database/templates')
@@ -1952,14 +1952,15 @@ def edit_options():
          return redirect(url_for('edit_passage'))
       elif request.form['button'] == 'Edit Sermon Title':
          return redirect(url_for('edit_sermon_title'))
+      elif request.form['button'] == 'Remove Member':
+         return redirect(url_for('remove_member_edit'))
    return render_template('edit_options.html')   
-
-
 
 @app.route('/edit_replace_song.html', methods=['POST','GET'])
 def edit_replace_song():
    if request.method == 'POST':
       result = replace_song(request.form.get('date'), request.form.get('song_title'), request.form.get('r_title'), request.form.get('r_artist'))
+      result = result + '\n' + sunday_search(request.form.get('date'))
       text1 = """<!DOCTYPE html>
     <html lang="en">
     <head>
@@ -2043,7 +2044,7 @@ def edit_replace_song():
         <script src="{{url_for('static',filename='script.js') }}"> </script>
     </body>
 </html>"""
-      print(result)
+      
       with open('/Users/paullee/Downloads/nlpt-database/templates/edit_result.html', 'w', encoding='utf-8') as f:
          f.write(text1)
          f.write(text2)
@@ -2163,20 +2164,990 @@ def edit_replace_song():
 
 @app.route('/edit_add_song.html', methods=['POST','GET'])
 def edit_add_song():
-   return render_template('edit_add_song.html')
+   if request.method == 'POST':
+      result = add_song(request.form.get('date'), request.form.get('r_title'), request.form.get('r_artist'))
+      text1 = """<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <title>NLPT22</title>
+        <!-- Css -->
+        <link rel="stylesheet" href="{{ url_for('static',filename='bootstrap.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}">
+    </head>
+    <body>
+        <nav class="navbar navbar-default navbar-fixed-top">
+            <div class="col-md-12">
+            <div class="nav">
+                <button class="btn-nav">
+                <span class="icon-bar inverted top"></span>
+                <span class="icon-bar inverted middle"></span>
+                <span class="icon-bar inverted bottom"></span>
+                </button>
+            </div>
+            <a class="navbar-brand" href="http://127.0.0.1:5000/">
+            <img class="logo" src="{{url_for('static', filename='logo.png')}}" alt="logo">
+            </a>
+            <div class="nav-content hideNav hidden">
+                <ul class="nav-list vcenter">
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/">Home</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/search.html">Search</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/sundays.html">Sundays</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/members.html">Members</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/roster.html">Roster</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/add.html">Add</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/edit.html">Edit</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/rewind.html">Rewind</a></li>
+                </ul>
+            </div>
+            </div>
+        </nav>
+        <!-- Header -->
+
+        <div class="span12">
+            <div class="col-md-6 no-gutter text-center fill">
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br> 
+            <h2 class="center">Replace Song</h2>"""
+      text2 = f"""
+      <pre style="height:450px;width=200px;">
+         {result}
+      </pre>
+      <br>
+      <br>
+      <a href="http://127.0.0.1:5000/edit.html">
+         <button class-"btn">Back</button>
+      </a>
+      </div>
+      """
+      text3 = """
+      <div class="col-md-6 no-gutter text-center">
+            <div id="header" data-speed="2" data-type="background">
+                <div id="headslide" class="carousel slide" data-ride="carousel">
+                    <div class="carousel-inner" role="listbox">
+                        <div class="item active"><img src="{{url_for('static',filename='edit.jpg')}}" alt="Slide">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+        <div style="clear:both;"></div>
+        <!-- script -->
+        <script src="{{url_for('static',filename='jquery.js') }}"> </script>
+        <script src="{{url_for('static',filename='bootstrap.min.js') }}"> </script> 
+        <script src="{{url_for('static',filename='menu-color.js') }}"> </script>
+        <script src="{{url_for('static',filename='modernizer.js') }}"> </script>
+        <script src="{{url_for('static',filename='script.js') }}"> </script>
+    </body>
+</html>"""
+      
+      with open('/Users/paullee/Downloads/nlpt-database/templates/edit_result.html', 'w', encoding='utf-8') as f:
+         f.write(text1)
+         f.write(text2)
+         f.write(text3)
+         f.close()
+      return render_template("edit_result.html")
+   else:
+      text = """<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <title>NLPT22</title>
+        <!-- Css -->
+        <link rel="stylesheet" href="{{ url_for('static',filename='bootstrap.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}">
+    </head>
+    <body>
+        <nav class="navbar navbar-default navbar-fixed-top">
+            <div class="col-md-12">
+            <div class="nav">
+                <button class="btn-nav">
+                <span class="icon-bar inverted top"></span>
+                <span class="icon-bar inverted middle"></span>
+                <span class="icon-bar inverted bottom"></span>
+                </button>
+            </div>
+            <a class="navbar-brand" href="http://127.0.0.1:5000/">
+            <img class="logo" src="{{url_for('static', filename='logo.png')}}" alt="logo">
+            </a>
+            <div class="nav-content hideNav hidden">
+                <ul class="nav-list vcenter">
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/">Home</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/search.html">Search</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/sundays.html">Sundays</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/members.html">Members</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/roster.html">Roster</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/add.html">Add</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/edit.html">Edit</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/rewind.html">Rewind</a></li>
+                </ul>
+            </div>
+            </div>
+        </nav>
+        <!-- Header -->
+
+        <div class="span12">
+            <div class="col-md-6 no-gutter text-center fill">
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br> 
+            <h2 class="center">Add Song</h2>
+                <p>
+                    Insert the Sunday that you would like to Edit in the form [dd.mm.yy]
+                </p>
+                <form method='POST'>
+                    <input type='text' name = 'date' size='50'
+                    <br>
+                    <p>
+                        Insert the title of the new song below
+                    </p>
+                    <input type='text' name = 'r_title', size='50'>
+                    <br>
+                    <p>
+                        Insert the artist of the new song below
+                    </p>
+                    <input type='text' name = 'r_artist', size='50'>
+                    <br>
+
+               <a href="http://127.0.0.1:5000/edit_result.html">
+                  <button class="btn">Submit</button>
+               </a>
+                </form>
+            <br>
+            <br>
+            <br>
+            
+            
+            </div>
+
+            <div class="col-md-6 no-gutter text-center">
+            <div id="header" data-speed="2" data-type="background">
+                <div id="headslide" class="carousel slide" data-ride="carousel">
+                    <div class="carousel-inner" role="listbox">
+                        <div class="item active"><img src="{{url_for('static',filename='edit.jpg')}}" alt="Slide">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+        <div style="clear:both;"></div>
+        <!-- script -->
+        <script src="{{url_for('static',filename='jquery.js') }}"> </script>
+        <script src="{{url_for('static',filename='bootstrap.min.js') }}"> </script> 
+        <script src="{{url_for('static',filename='menu-color.js') }}"> </script>
+        <script src="{{url_for('static',filename='modernizer.js') }}"> </script>
+        <script src="{{url_for('static',filename='script.js') }}"> </script>
+    </body>
+</html>"""
+      with open('/Users/paullee/Downloads/nlpt-database/templates/edit_add_song.html', 'w', encoding='utf-8') as f:
+         f.write(text)
+         f.close()
+      return render_template('edit_add_song.html')
 
 @app.route('/edit_remove_song.html', methods=['POST','GET'])
 def edit_remove_song():
-   return render_template('edit_remove_song.html')
+   if request.method == 'POST':
+      result = remove_song(request.form.get('date'), request.form.get('r_title'), request.form.get('r_artist'))
+      text1 = """<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <title>NLPT22</title>
+        <!-- Css -->
+        <link rel="stylesheet" href="{{ url_for('static',filename='bootstrap.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}">
+    </head>
+    <body>
+        <nav class="navbar navbar-default navbar-fixed-top">
+            <div class="col-md-12">
+            <div class="nav">
+                <button class="btn-nav">
+                <span class="icon-bar inverted top"></span>
+                <span class="icon-bar inverted middle"></span>
+                <span class="icon-bar inverted bottom"></span>
+                </button>
+            </div>
+            <a class="navbar-brand" href="http://127.0.0.1:5000/">
+            <img class="logo" src="{{url_for('static', filename='logo.png')}}" alt="logo">
+            </a>
+            <div class="nav-content hideNav hidden">
+                <ul class="nav-list vcenter">
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/">Home</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/search.html">Search</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/sundays.html">Sundays</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/members.html">Members</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/roster.html">Roster</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/add.html">Add</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/edit.html">Edit</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/rewind.html">Rewind</a></li>
+                </ul>
+            </div>
+            </div>
+        </nav>
+        <!-- Header -->
+
+        <div class="span12">
+            <div class="col-md-6 no-gutter text-center fill">
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br> 
+            <h2 class="center">Replace Song</h2>"""
+      text2 = f"""
+      <pre style="height:450px;width=200px;">
+         {result}
+      </pre>
+      <br>
+      <br>
+      <a href="http://127.0.0.1:5000/edit.html">
+         <button class-"btn">Back</button>
+      </a>
+      </div>
+      """
+      text3 = """
+      <div class="col-md-6 no-gutter text-center">
+            <div id="header" data-speed="2" data-type="background">
+                <div id="headslide" class="carousel slide" data-ride="carousel">
+                    <div class="carousel-inner" role="listbox">
+                        <div class="item active"><img src="{{url_for('static',filename='edit.jpg')}}" alt="Slide">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+        <div style="clear:both;"></div>
+        <!-- script -->
+        <script src="{{url_for('static',filename='jquery.js') }}"> </script>
+        <script src="{{url_for('static',filename='bootstrap.min.js') }}"> </script> 
+        <script src="{{url_for('static',filename='menu-color.js') }}"> </script>
+        <script src="{{url_for('static',filename='modernizer.js') }}"> </script>
+        <script src="{{url_for('static',filename='script.js') }}"> </script>
+    </body>
+</html>"""
+      
+      with open('/Users/paullee/Downloads/nlpt-database/templates/edit_result.html', 'w', encoding='utf-8') as f:
+         f.write(text1)
+         f.write(text2)
+         f.write(text3)
+         f.close()
+      return render_template("edit_result.html")
+   else:
+      text = """<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <title>NLPT22</title>
+        <!-- Css -->
+        <link rel="stylesheet" href="{{ url_for('static',filename='bootstrap.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}">
+    </head>
+    <body>
+        <nav class="navbar navbar-default navbar-fixed-top">
+            <div class="col-md-12">
+            <div class="nav">
+                <button class="btn-nav">
+                <span class="icon-bar inverted top"></span>
+                <span class="icon-bar inverted middle"></span>
+                <span class="icon-bar inverted bottom"></span>
+                </button>
+            </div>
+            <a class="navbar-brand" href="http://127.0.0.1:5000/">
+            <img class="logo" src="{{url_for('static', filename='logo.png')}}" alt="logo">
+            </a>
+            <div class="nav-content hideNav hidden">
+                <ul class="nav-list vcenter">
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/">Home</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/search.html">Search</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/sundays.html">Sundays</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/members.html">Members</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/roster.html">Roster</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/add.html">Add</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/edit.html">Edit</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/rewind.html">Rewind</a></li>
+                </ul>
+            </div>
+            </div>
+        </nav>
+        <!-- Header -->
+
+        <div class="span12">
+            <div class="col-md-6 no-gutter text-center fill">
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br> 
+            <h2 class="center">Remove Song</h2>
+                <p>
+                    Insert the Sunday that you would like to Edit in the form [dd.mm.yy]
+                </p>
+                <form method='POST'>
+                    <input type='text' name = 'date' size='50'
+                    <br>
+                    <p>
+                        Insert the title of the song you would like to remove
+                    </p>
+                    <input type='text' name = 'r_title', size='50'>
+                    <br>
+                    <p>
+                        Insert the artist of the song you would like to remove
+                    </p>
+                    <input type='text' name = 'r_artist', size='50'>
+                    <br>
+
+               <a href="http://127.0.0.1:5000/edit_result.html">
+                  <button class="btn">Submit</button>
+               </a>
+                </form>
+            <br>
+            <br>
+            <br>
+            
+            
+            </div>
+
+            <div class="col-md-6 no-gutter text-center">
+            <div id="header" data-speed="2" data-type="background">
+                <div id="headslide" class="carousel slide" data-ride="carousel">
+                    <div class="carousel-inner" role="listbox">
+                        <div class="item active"><img src="{{url_for('static',filename='edit.jpg')}}" alt="Slide">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+        <div style="clear:both;"></div>
+        <!-- script -->
+        <script src="{{url_for('static',filename='jquery.js') }}"> </script>
+        <script src="{{url_for('static',filename='bootstrap.min.js') }}"> </script> 
+        <script src="{{url_for('static',filename='menu-color.js') }}"> </script>
+        <script src="{{url_for('static',filename='modernizer.js') }}"> </script>
+        <script src="{{url_for('static',filename='script.js') }}"> </script>
+    </body>
+</html>"""
+      with open('/Users/paullee/Downloads/nlpt-database/templates/edit_remove_song.html', 'w', encoding='utf-8') as f:
+         f.write(text)
+         f.close()
+      return render_template('edit_remove_song.html')
 
 @app.route('/edit_passage.html', methods=['POST','GET'])
 def edit_passage():
-   return render_template('edit_passage.html')
+   if request.method == 'POST':
+      result = change_passage(request.form.get('date'), request.form.get('passage'))
+      
+      text1 = """<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <title>NLPT22</title>
+        <!-- Css -->
+        <link rel="stylesheet" href="{{ url_for('static',filename='bootstrap.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}">
+    </head>
+    <body>
+        <nav class="navbar navbar-default navbar-fixed-top">
+            <div class="col-md-12">
+            <div class="nav">
+                <button class="btn-nav">
+                <span class="icon-bar inverted top"></span>
+                <span class="icon-bar inverted middle"></span>
+                <span class="icon-bar inverted bottom"></span>
+                </button>
+            </div>
+            <a class="navbar-brand" href="http://127.0.0.1:5000/">
+            <img class="logo" src="{{url_for('static', filename='logo.png')}}" alt="logo">
+            </a>
+            <div class="nav-content hideNav hidden">
+                <ul class="nav-list vcenter">
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/">Home</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/search.html">Search</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/sundays.html">Sundays</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/members.html">Members</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/roster.html">Roster</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/add.html">Add</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/edit.html">Edit</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/rewind.html">Rewind</a></li>
+                </ul>
+            </div>
+            </div>
+        </nav>
+        <!-- Header -->
+
+        <div class="span12">
+            <div class="col-md-6 no-gutter text-center fill">
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br> 
+            <h2 class="center">Replace Song</h2>"""
+      text2 = f"""
+      <pre style="height:450px;width=200px;">
+         {result}
+      </pre>
+      <br>
+      <br>
+      <a href="http://127.0.0.1:5000/edit.html">
+         <button class-"btn">Back</button>
+      </a>
+      </div>
+      """
+      text3 = """
+      <div class="col-md-6 no-gutter text-center">
+            <div id="header" data-speed="2" data-type="background">
+                <div id="headslide" class="carousel slide" data-ride="carousel">
+                    <div class="carousel-inner" role="listbox">
+                        <div class="item active"><img src="{{url_for('static',filename='edit.jpg')}}" alt="Slide">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+        <div style="clear:both;"></div>
+        <!-- script -->
+        <script src="{{url_for('static',filename='jquery.js') }}"> </script>
+        <script src="{{url_for('static',filename='bootstrap.min.js') }}"> </script> 
+        <script src="{{url_for('static',filename='menu-color.js') }}"> </script>
+        <script src="{{url_for('static',filename='modernizer.js') }}"> </script>
+        <script src="{{url_for('static',filename='script.js') }}"> </script>
+    </body>
+</html>"""
+      
+      with open('/Users/paullee/Downloads/nlpt-database/templates/edit_result.html', 'w', encoding='utf-8') as f:
+         f.write(text1)
+         f.write(text2)
+         f.write(text3)
+         f.close()
+      return render_template("edit_result.html")
+   else:
+      text = """<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <title>NLPT22</title>
+        <!-- Css -->
+        <link rel="stylesheet" href="{{ url_for('static',filename='bootstrap.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}">
+    </head>
+    <body>
+        <nav class="navbar navbar-default navbar-fixed-top">
+            <div class="col-md-12">
+            <div class="nav">
+                <button class="btn-nav">
+                <span class="icon-bar inverted top"></span>
+                <span class="icon-bar inverted middle"></span>
+                <span class="icon-bar inverted bottom"></span>
+                </button>
+            </div>
+            <a class="navbar-brand" href="http://127.0.0.1:5000/">
+            <img class="logo" src="{{url_for('static', filename='logo.png')}}" alt="logo">
+            </a>
+            <div class="nav-content hideNav hidden">
+                <ul class="nav-list vcenter">
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/">Home</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/search.html">Search</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/sundays.html">Sundays</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/members.html">Members</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/roster.html">Roster</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/add.html">Add</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/edit.html">Edit</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/rewind.html">Rewind</a></li>
+                </ul>
+            </div>
+            </div>
+        </nav>
+        <!-- Header -->
+
+        <div class="span12">
+            <div class="col-md-6 no-gutter text-center fill">
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br> 
+            <h2 class="center">Edit Passage</h2>
+                <p>
+                    Insert the Sunday that you would like to Edit in the form [dd.mm.yy]
+                </p>
+                <form method='POST'>
+                    <input type='text' name = 'date' size='50'
+                    <br>
+                    <p>
+                        Insert the new passage to replace the current passage
+                    </p>
+                    <input type='text' name = 'passage', size='50'>
+                    <br>
+                    
+
+               <a href="http://127.0.0.1:5000/edit_result.html">
+                  <button class="btn">Submit</button>
+               </a>
+                </form>
+            <br>
+            <br>
+            <br>
+            
+            
+            </div>
+
+            <div class="col-md-6 no-gutter text-center">
+            <div id="header" data-speed="2" data-type="background">
+                <div id="headslide" class="carousel slide" data-ride="carousel">
+                    <div class="carousel-inner" role="listbox">
+                        <div class="item active"><img src="{{url_for('static',filename='edit.jpg')}}" alt="Slide">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+        <div style="clear:both;"></div>
+        <!-- script -->
+        <script src="{{url_for('static',filename='jquery.js') }}"> </script>
+        <script src="{{url_for('static',filename='bootstrap.min.js') }}"> </script> 
+        <script src="{{url_for('static',filename='menu-color.js') }}"> </script>
+        <script src="{{url_for('static',filename='modernizer.js') }}"> </script>
+        <script src="{{url_for('static',filename='script.js') }}"> </script>
+    </body>
+</html>"""
+      with open('/Users/paullee/Downloads/nlpt-database/templates/edit_passage.html', 'w', encoding='utf-8') as f:
+         f.write(text)
+         f.close()
+      return render_template('edit_passage.html')
 
 @app.route('/edit_sermon_title.html', methods=['POST','GET'])
 def edit_sermon_title():
-   return render_template('edit_sermon_title.html')
+   if request.method == 'POST':
+      result = change_title(request.form.get('date'), request.form.get('title'))
+      
+      text1 = """<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <title>NLPT22</title>
+        <!-- Css -->
+        <link rel="stylesheet" href="{{ url_for('static',filename='bootstrap.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}">
+    </head>
+    <body>
+        <nav class="navbar navbar-default navbar-fixed-top">
+            <div class="col-md-12">
+            <div class="nav">
+                <button class="btn-nav">
+                <span class="icon-bar inverted top"></span>
+                <span class="icon-bar inverted middle"></span>
+                <span class="icon-bar inverted bottom"></span>
+                </button>
+            </div>
+            <a class="navbar-brand" href="http://127.0.0.1:5000/">
+            <img class="logo" src="{{url_for('static', filename='logo.png')}}" alt="logo">
+            </a>
+            <div class="nav-content hideNav hidden">
+                <ul class="nav-list vcenter">
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/">Home</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/search.html">Search</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/sundays.html">Sundays</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/members.html">Members</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/roster.html">Roster</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/add.html">Add</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/edit.html">Edit</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/rewind.html">Rewind</a></li>
+                </ul>
+            </div>
+            </div>
+        </nav>
+        <!-- Header -->
 
+        <div class="span12">
+            <div class="col-md-6 no-gutter text-center fill">
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br> 
+            <h2 class="center">Replace Song</h2>"""
+      text2 = f"""
+      <pre style="height:450px;width=200px;">
+         {result}
+      </pre>
+      <br>
+      <br>
+      <a href="http://127.0.0.1:5000/edit.html">
+         <button class-"btn">Back</button>
+      </a>
+      </div>
+      """
+      text3 = """
+      <div class="col-md-6 no-gutter text-center">
+            <div id="header" data-speed="2" data-type="background">
+                <div id="headslide" class="carousel slide" data-ride="carousel">
+                    <div class="carousel-inner" role="listbox">
+                        <div class="item active"><img src="{{url_for('static',filename='edit.jpg')}}" alt="Slide">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+        <div style="clear:both;"></div>
+        <!-- script -->
+        <script src="{{url_for('static',filename='jquery.js') }}"> </script>
+        <script src="{{url_for('static',filename='bootstrap.min.js') }}"> </script> 
+        <script src="{{url_for('static',filename='menu-color.js') }}"> </script>
+        <script src="{{url_for('static',filename='modernizer.js') }}"> </script>
+        <script src="{{url_for('static',filename='script.js') }}"> </script>
+    </body>
+</html>"""
+      
+      with open('/Users/paullee/Downloads/nlpt-database/templates/edit_result.html', 'w', encoding='utf-8') as f:
+         f.write(text1)
+         f.write(text2)
+         f.write(text3)
+         f.close()
+      return render_template("edit_result.html")
+   else:
+      text = """<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <title>NLPT22</title>
+        <!-- Css -->
+        <link rel="stylesheet" href="{{ url_for('static',filename='bootstrap.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}">
+    </head>
+    <body>
+        <nav class="navbar navbar-default navbar-fixed-top">
+            <div class="col-md-12">
+            <div class="nav">
+                <button class="btn-nav">
+                <span class="icon-bar inverted top"></span>
+                <span class="icon-bar inverted middle"></span>
+                <span class="icon-bar inverted bottom"></span>
+                </button>
+            </div>
+            <a class="navbar-brand" href="http://127.0.0.1:5000/">
+            <img class="logo" src="{{url_for('static', filename='logo.png')}}" alt="logo">
+            </a>
+            <div class="nav-content hideNav hidden">
+                <ul class="nav-list vcenter">
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/">Home</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/search.html">Search</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/sundays.html">Sundays</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/members.html">Members</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/roster.html">Roster</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/add.html">Add</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/edit.html">Edit</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/rewind.html">Rewind</a></li>
+                </ul>
+            </div>
+            </div>
+        </nav>
+        <!-- Header -->
+
+        <div class="span12">
+            <div class="col-md-6 no-gutter text-center fill">
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br> 
+            <h2 class="center">Edit Sermon Title</h2>
+                <p>
+                    Insert the Sunday that you would like to Edit in the form [dd.mm.yy]
+                </p>
+                <form method='POST'>
+                    <input type='text' name = 'date' size='50'
+                    <br>
+                    <p>
+                        Insert the new title to replace the current sermon title
+                    </p>
+                    <input type='text' name = 'title', size='50'>
+                    <br>
+                    
+
+               <a href="http://127.0.0.1:5000/edit_result.html">
+                  <button class="btn">Submit</button>
+               </a>
+                </form>
+            <br>
+            <br>
+            <br>
+            
+            
+            </div>
+
+            <div class="col-md-6 no-gutter text-center">
+            <div id="header" data-speed="2" data-type="background">
+                <div id="headslide" class="carousel slide" data-ride="carousel">
+                    <div class="carousel-inner" role="listbox">
+                        <div class="item active"><img src="{{url_for('static',filename='edit.jpg')}}" alt="Slide">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+        <div style="clear:both;"></div>
+        <!-- script -->
+        <script src="{{url_for('static',filename='jquery.js') }}"> </script>
+        <script src="{{url_for('static',filename='bootstrap.min.js') }}"> </script> 
+        <script src="{{url_for('static',filename='menu-color.js') }}"> </script>
+        <script src="{{url_for('static',filename='modernizer.js') }}"> </script>
+        <script src="{{url_for('static',filename='script.js') }}"> </script>
+    </body>
+</html>"""
+      with open('/Users/paullee/Downloads/nlpt-database/templates/edit_sermon_title.html', 'w', encoding='utf-8') as f:
+         f.write(text)
+         f.close()
+      return render_template('edit_sermon_title.html')
+
+@app.route('/remove_member.html', methods=['POST','GET'])
+def remove_member_edit():
+   if request.method == 'POST':
+      result = remove_member(request.form.get('name'), request.form.get('role'))
+      
+      text1 = """<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <title>NLPT22</title>
+        <!-- Css -->
+        <link rel="stylesheet" href="{{ url_for('static',filename='bootstrap.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}">
+    </head>
+    <body>
+        <nav class="navbar navbar-default navbar-fixed-top">
+            <div class="col-md-12">
+            <div class="nav">
+                <button class="btn-nav">
+                <span class="icon-bar inverted top"></span>
+                <span class="icon-bar inverted middle"></span>
+                <span class="icon-bar inverted bottom"></span>
+                </button>
+            </div>
+            <a class="navbar-brand" href="http://127.0.0.1:5000/">
+            <img class="logo" src="{{url_for('static', filename='logo.png')}}" alt="logo">
+            </a>
+            <div class="nav-content hideNav hidden">
+                <ul class="nav-list vcenter">
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/">Home</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/search.html">Search</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/sundays.html">Sundays</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/members.html">Members</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/roster.html">Roster</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/add.html">Add</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/edit.html">Edit</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/rewind.html">Rewind</a></li>
+                </ul>
+            </div>
+            </div>
+        </nav>
+        <!-- Header -->
+
+        <div class="span12">
+            <div class="col-md-6 no-gutter text-center fill">
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br> 
+            <h2 class="center">Replace Song</h2>"""
+      text2 = f"""
+      <pre style="height:450px;width=200px;">
+         {result}
+      </pre>
+      <br>
+      <br>
+      <a href="http://127.0.0.1:5000/edit.html">
+         <button class-"btn">Back</button>
+      </a>
+      </div>
+      """
+      text3 = """
+      <div class="col-md-6 no-gutter text-center">
+            <div id="header" data-speed="2" data-type="background">
+                <div id="headslide" class="carousel slide" data-ride="carousel">
+                    <div class="carousel-inner" role="listbox">
+                        <div class="item active"><img src="{{url_for('static',filename='edit.jpg')}}" alt="Slide">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+        <div style="clear:both;"></div>
+        <!-- script -->
+        <script src="{{url_for('static',filename='jquery.js') }}"> </script>
+        <script src="{{url_for('static',filename='bootstrap.min.js') }}"> </script> 
+        <script src="{{url_for('static',filename='menu-color.js') }}"> </script>
+        <script src="{{url_for('static',filename='modernizer.js') }}"> </script>
+        <script src="{{url_for('static',filename='script.js') }}"> </script>
+    </body>
+</html>"""
+      
+      with open('/Users/paullee/Downloads/nlpt-database/templates/edit_result.html', 'w', encoding='utf-8') as f:
+         f.write(text1)
+         f.write(text2)
+         f.write(text3)
+         f.close()
+      return render_template("edit_result.html")
+   else:
+      text = """<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <title>NLPT22</title>
+        <!-- Css -->
+        <link rel="stylesheet" href="{{ url_for('static',filename='bootstrap.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}">
+    </head>
+    <body>
+        <nav class="navbar navbar-default navbar-fixed-top">
+            <div class="col-md-12">
+            <div class="nav">
+                <button class="btn-nav">
+                <span class="icon-bar inverted top"></span>
+                <span class="icon-bar inverted middle"></span>
+                <span class="icon-bar inverted bottom"></span>
+                </button>
+            </div>
+            <a class="navbar-brand" href="http://127.0.0.1:5000/">
+            <img class="logo" src="{{url_for('static', filename='logo.png')}}" alt="logo">
+            </a>
+            <div class="nav-content hideNav hidden">
+                <ul class="nav-list vcenter">
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/">Home</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/search.html">Search</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/sundays.html">Sundays</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/members.html">Members</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/roster.html">Roster</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/add.html">Add</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/edit.html">Edit</a></li>
+                    <li class="nav-item"><a class="item-anchor" href="http://127.0.0.1:5000/rewind.html">Rewind</a></li>
+                </ul>
+            </div>
+            </div>
+        </nav>
+        <!-- Header -->
+
+        <div class="span12">
+            <div class="col-md-6 no-gutter text-center fill">
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br> 
+            <h2 class="center">Remove Member</h2>
+                <p>
+                    Who would you like to remove from Praise Team?
+                </p>
+                <form method='POST'>
+                    <input type='text' name = 'name' size='50'
+                    <br>
+                    <p>
+                        What is their role?
+                        Vocal | Vocal + Guitar | Vocal + Keys | Keys | Drum | Sound
+                    </p>
+                    <input type='text' name = 'role', size='50'>
+                    <br>
+                    
+
+               <a href="http://127.0.0.1:5000/edit_result.html">
+                  <button class="btn">Submit</button>
+               </a>
+                </form>
+            <br>
+            <br>
+            <br>
+            
+            
+            </div>
+
+            <div class="col-md-6 no-gutter text-center">
+            <div id="header" data-speed="2" data-type="background">
+                <div id="headslide" class="carousel slide" data-ride="carousel">
+                    <div class="carousel-inner" role="listbox">
+                        <div class="item active"><img src="{{url_for('static',filename='edit.jpg')}}" alt="Slide">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+        <div style="clear:both;"></div>
+        <!-- script -->
+        <script src="{{url_for('static',filename='jquery.js') }}"> </script>
+        <script src="{{url_for('static',filename='bootstrap.min.js') }}"> </script> 
+        <script src="{{url_for('static',filename='menu-color.js') }}"> </script>
+        <script src="{{url_for('static',filename='modernizer.js') }}"> </script>
+        <script src="{{url_for('static',filename='script.js') }}"> </script>
+    </body>
+</html>"""
+      with open('/Users/paullee/Downloads/nlpt-database/templates/remove_member.html', 'w', encoding='utf-8') as f:
+         f.write(text)
+         f.close()
+      return render_template('remove_member.html')
 
 
 if __name__ == '__main__':

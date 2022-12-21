@@ -194,7 +194,7 @@ def member_search(txt):
 
     # manipulate database
 
-    try:
+    try: 
         db = psycopg2.connect(database="nlpt", user="pol", password="poljunhyeok0625", host="nlpt.chrjlburyp5p.ap-southeast-2.rds.amazonaws.com", port="5432")
         cur = db.cursor()
         if len(txt) == 1:	# if there was no argument included with the program, it notifies the user that there was no member included and exits
@@ -223,7 +223,7 @@ def member_search(txt):
             instqry = "" # qry specific for instrumentalist that finds the frequency the member has stood as an instrumentalist
             vqry = "" # qry specific for vocalists that finds the frequency the member has stood as a vocalist
             r = "" # role of the member specified as an ID
-
+            sound = 0
             if "Vocal" in role:
                 if "Guitar" in role:    # Role = Vocal + Guitar
                     countqry = f"""
@@ -317,11 +317,7 @@ def member_search(txt):
                 """
                 r = "D"
             else:   # sound
-                countqry = f"""
-                SELECT count(*)
-                FROM Roster
-                WHERE pads = '{instring}'
-                """
+                sound = 1
 
             cur.execute(countqry)
             total = cur.fetchone()  # Fetch frequency member has stood
@@ -346,16 +342,24 @@ def member_search(txt):
 
 
             # Return information related to the member
-            returnString = f"\nMember Name: {instring}\n"
+            qry = f"SELECT status FROM Members WHERE name = '{instring}'"
+            cur.execute(qry)
+            status = cur.fetchone()[0]
+            
+            
+            if status == 1:
+                returnString = f"\nMember Name: {instring}\n"
+            else:
+                returnString = f"\nMember Name: {instring} (Past Member)\n"
             returnString += f"Role: {role}\n"
 
             # if the result of song leader and vocal is empty, output relevant information for instrumentalists
             
             if total_s == "" and total_v == "" and total != 0:
                 returnString += f"Since 2022, {instring} stood {total} times\n"
-            elif instring == 'Annabel' or instring == 'Annette':
+            elif sound == 1:
                 returnString += f"{instring} is rostered on the sound board every fortnight\n"
-            elif total == 0 and instring != 'Annabel' and instring != 'Annette':
+            elif total == 0:
                 returnString += f"{instring} has not been rostered yet"
             else:
                 returnString += f"Since 2022, {instring} stood {total} times: "   # output information for song leaders or vocalists
@@ -924,16 +928,17 @@ def roster_search(txt):
 
         d = sList[0]
         year = d[2:4]
-        month = d[5:7]
+        month_ = d[5:7]
         day = d[8:10]
         
-        first_sun = day + "." + month + "." + year
+        first_sun = day + "." + month_ + "." + year
         qry = f"SELECT id FROM Sundays WHERE date = '{first_sun}'"
         cur.execute(qry)
         fID = cur.fetchone()[0]
         
         cur.execute(f"SELECT MIN(id) FROM Roster WHERE month = '{month}' AND id >= {fID}")
-        minID = int(cur.fetchone()[0])
+        
+        minID = cur.fetchone()[0]
 
         qry = f"""
         SELECT id, song_leader1, song_leader2, vocal, guitar_1, guitar_2, keys, drum, pads 
@@ -952,7 +957,7 @@ def roster_search(txt):
         for item in info:
             rosteredID = item[0]
             id = rosteredID - minID
-            print(sList[id])
+            # print(sList[id])
             rostered_date.append(sList[id])
             d_day.append((datetime.date.fromisoformat(sList[id]) - today).days)
             list = []
@@ -1019,15 +1024,15 @@ def show_members():
     try:
         db = psycopg2.connect(database="nlpt", user="pol", password="poljunhyeok0625", host="nlpt.chrjlburyp5p.ap-southeast-2.rds.amazonaws.com", port="5432")
         cur = db.cursor()
-        cur.execute("SELECT name FROM Members")
+        cur.execute("SELECT name, role FROM Members")
         info = cur.fetchall()
         
         for item in info:
-            print(item[0].strip())
-            if item[0].strip() == 'Annabel' or item[0].strip() == 'Annette':
+    
+            if item[1].strip() == 'Sound':
                 returnString += "\n" + f"Member Name: {item[0].strip()}\nRole: Sound" + "\n"
             else:
-                returnString += member_search(item[0].strip()) + '\n'
+                returnString += (member_search(item[0].strip()) + '\n')
         
         return returnString
     
@@ -1149,8 +1154,8 @@ def add_member(name, role):
         id = int(cur.fetchone()[0]) + 1
         
         qry = f"""
-        INSERT INTO Members(ID, Name, Role)
-        VALUES({id}, '{name}', '{role}')
+        INSERT INTO Members(ID, Name, Role, Status)
+        VALUES({id}, '{name}', '{role}', 1)
         """
         
         cur.execute(qry)
@@ -1513,6 +1518,13 @@ def replace_song(date, song_title, r_title, r_artist):
     month = int(date[3:5])
     year = int('20' + date[6:8])
     d = datetime.date(year, month, day)
+    if "'" in r_title:
+        r_title = r_title.replace("'", "''")	# if an apostrophe is used as part of the song, replace it as '' to be used for queries
+    r_title = r_title.strip()
+            
+    if "'" in r_artist:
+        r_artist = r_artist.replace("'", "''")    # if an apostrophe is used as part of the artist name, replace it as '' to be used for queries
+    r_artist = r_artist.strip()
     
     if d.isoweekday() != 7:
         returnString = f"\n{date} is not a Sunday\n"
@@ -1524,8 +1536,6 @@ def replace_song(date, song_title, r_title, r_artist):
         cur.execute(qry)
         info = cur.fetchall()
         sundayid = info[0][0]
-        title = info[0][2]
-        passage = info[0][3].strip()
         
         if len(info) != 1:
             returnString = f"\nSunday data for the date {date} doesn't exist\n"
@@ -1573,6 +1583,209 @@ def replace_song(date, song_title, r_title, r_artist):
         return returnString
         
                         
+    except psycopg2.Error as err:
+        print("DB error: ", err)
+    finally:
+        if db:
+            db.close()
+
+def add_song(date, r_title, r_artist):
+    day = int(date[0:2])
+    month = int(date[3:5])
+    year = int('20' + date[6:8])
+    d = datetime.date(year, month, day)
+    
+    if "'" in r_title:
+        r_title = r_title.replace("'", "''")	# if an apostrophe is used as part of the song, replace it as '' to be used for queries
+    r_title = r_title.strip()
+            
+    if "'" in r_artist:
+        r_artist = r_artist.replace("'", "''")    # if an apostrophe is used as part of the artist name, replace it as '' to be used for queries
+    r_artist = r_artist.strip()
+    if d.isoweekday() != 7:
+        returnString = f"\n{date} is not a Sunday\n"
+        return returnString
+
+    try:
+        db = psycopg2.connect(database="nlpt", user="pol", password="poljunhyeok0625", host="nlpt.chrjlburyp5p.ap-southeast-2.rds.amazonaws.com", port="5432")
+        cur = db.cursor()
+        qry = f"SELECT * FROM Sundays WHERE date = '{date}'"
+        cur.execute(qry)
+        info = cur.fetchall()
+        sundayid = info[0][0]
+        
+        if len(info) != 1:
+            returnString = f"\nSunday data for the date {date} doesn't exist\n"
+            return returnString
+        returnString = '\n'
+        qry = f"SELECT Songs.id FROM Songs, Artists WHERE Songs.title = '{r_title}' AND Artists.name = '{r_artist}' AND Songs.artistid = Artists.id"
+        cur.execute(qry)
+        sID = cur.fetchone()
+        
+        if sID is None:
+            cur.execute("SELECT MAX(ID) FROM Songs")
+            sID = cur.fetchone()[0] + 1
+            
+            qry = f"SELECT id FROM Artists WHERE name = '{r_artist}'"
+            cur.execute(qry)
+            aID = cur.fetchone()[0].strip()
+            
+            if aID == None:
+                aID = (''.join(i for i in r_artist if i.isupper()))
+                qry = f"""
+                INSERT INTO Artists (ID, Name)
+                VALUES('{aID}', '{r_artist}')
+                """
+                cur.execute(qry)
+                db.commit()
+                returnString += f"{r_artist} ({aID}) added as a new artists in the database\n"
+            qry = f"""
+            INSERT INTO Songs(ID, Title, ArtistID)
+            VALUES ({sID}, '{r_title}', '{aID}')
+            """
+            cur.execute(qry)
+            db.commit()
+            returnString += f"{sID} | {r_title} | {aID} add as a new song in the database\n"
+        else:
+            sID = int(sID[0])
+        qry = f"INSERT INTO Sunday_songs(songID, SundayID) VALUES ({sID}, {sundayid})"
+        cur.execute(qry)
+        db.commit()
+        returnString += f"{r_title} by {r_artist} added\n"
+        returnString += sunday_search(date)
+        
+        return returnString
+    except psycopg2.Error as err:
+        print("DB error: ", err)
+    finally:
+        if db:
+            db.close()
+    
+def remove_song(date, r_title, r_artist):
+    day = int(date[0:2])
+    month = int(date[3:5])
+    year = int('20' + date[6:8])
+    d = datetime.date(year, month, day)
+    
+    if "'" in r_title:
+        r_title = r_title.replace("'", "''")	# if an apostrophe is used as part of the song, replace it as '' to be used for queries
+    r_title = r_title.strip()
+            
+    if "'" in r_artist:
+        r_artist = r_artist.replace("'", "''")    # if an apostrophe is used as part of the artist name, replace it as '' to be used for queries
+    r_artist = r_artist.strip()
+    if d.isoweekday() != 7:
+        returnString = f"\n{date} is not a Sunday\n"
+        return returnString
+
+    try:
+        db = psycopg2.connect(database="nlpt", user="pol", password="poljunhyeok0625", host="nlpt.chrjlburyp5p.ap-southeast-2.rds.amazonaws.com", port="5432")
+        cur = db.cursor()
+        qry = f"SELECT * FROM Sundays WHERE date = '{date}'"
+        cur.execute(qry)
+        info = cur.fetchall()
+        sundayid = info[0][0]
+        
+        if len(info) != 1:
+            returnString = f"\nSunday data for the date {date} doesn't exist\n"
+            return returnString
+        returnString = '\n'
+        qry = f"SELECT Songs.id FROM Songs, Artists WHERE Songs.title = '{r_title}' AND Artists.name = '{r_artist}' AND Songs.artistid = Artists.id"
+        cur.execute(qry)
+        sID = cur.fetchone()
+        
+        if sID is None:
+            returnString += f"{r_title} by {r_artist} is not in {date}\n"
+            return returnString
+        
+        qry = f"DELETE FROM Sunday_songs WHERE sundayid = {sundayid} and songid = {sID[0]}"
+        cur.execute(qry)
+        db.commit()
+        returnString += f"{r_title} by {r_artist} removed from {date}\n"
+        returnString += sunday_search(date)
+        
+        return returnString
+        
+        
+        
+    except psycopg2.Error as err:
+        print("DB error: ", err)
+    finally:
+        if db:
+            db.close()
+            
+def change_passage(date, passage):
+    if "'" in passage:
+        passage = passage.replace("'", "''")	# if an apostrophe is used as part of the song, replace it as '' to be used for queries
+    passage = passage.strip()
+    
+    day = int(date[0:2])
+    month = int(date[3:5])
+    year = int('20' + date[6:8])
+    d = datetime.date(year, month, day)
+    
+    if d.isoweekday() != 7:
+        returnString = f"\n{date} is not a Sunday\n"
+        return returnString
+    
+    
+    try:
+        db = psycopg2.connect(database="nlpt", user="pol", password="poljunhyeok0625", host="nlpt.chrjlburyp5p.ap-southeast-2.rds.amazonaws.com", port="5432")
+        cur = db.cursor()
+        qry = f"UPDATE Sundays SET passage = '{passage}' WHERE date = '{date}'"
+        cur.execute(qry)
+        db.commit() # Update the passage for the given date
+        returnString = f"\nUpdated passage for {date} as {passage}\n"
+        returnString += sunday_search(date)
+        
+        return returnString
+    except psycopg2.Error as err:
+        print("DB error: ", err)
+    finally:
+        if db:
+            db.close()
+
+def change_title(date, title):
+    if "'" in title:
+        title = title.replace("'", "''")	# if an apostrophe is used as part of the song, replace it as '' to be used for queries
+    title = title.strip()
+    
+    day = int(date[0:2])
+    month = int(date[3:5])
+    year = int('20' + date[6:8])
+    d = datetime.date(year, month, day)
+    
+    if d.isoweekday() != 7:
+        returnString = f"\n{date} is not a Sunday\n"
+        return returnString
+    
+    
+    try:
+        db = psycopg2.connect(database="nlpt", user="pol", password="poljunhyeok0625", host="nlpt.chrjlburyp5p.ap-southeast-2.rds.amazonaws.com", port="5432")
+        cur = db.cursor()
+        qry = f"UPDATE Sundays SET title = '{title}' WHERE date = '{date}'"
+        cur.execute(qry)
+        db.commit() # Update the title for the given date
+        returnString = f"\nUpdated title for {date} as {title}\n"
+        returnString += sunday_search(date)
+        
+        return returnString
+    except psycopg2.Error as err:
+        print("DB error: ", err)
+    finally:
+        if db:
+            db.close()
+
+def remove_member(name, role):
+    db = None
+    try:
+        db = psycopg2.connect(database="nlpt", user="pol", password="poljunhyeok0625", host="nlpt.chrjlburyp5p.ap-southeast-2.rds.amazonaws.com", port="5432")
+        cur = db.cursor()
+        cur.execute(f"UPDATE Members SET status = 0 WHERE name = '{name}' and role = '{role}'")
+        db.commit()
+        returnString = f"Member set as past member\n {name} | {role}"
+        returnString += member_search(name)
+        return returnString
     except psycopg2.Error as err:
         print("DB error: ", err)
     finally:
