@@ -112,7 +112,8 @@ CREATE TABLE Artists (
 CREATE TABLE Members (
 	ID int,
 	Name character(30),
-	Role character(30)
+	Role character(30),
+	Status int
 );
 
 CREATE TABLE Roster(
@@ -129,7 +130,7 @@ CREATE TABLE Roster(
 );
 
 -- loading roster.csv into roster table -- 
-	-- \COPY roster FROM /Users/paullee/Desktop/roster.csv HEADER CSV
+	-- \COPY roster FROM /Users/paullee/Desp /roster.csv HEADER CSV
 
 --BASE SONGS--
 -- INSERT INTO Sundays (ID, Date, Title, Passage)

@@ -22,7 +22,7 @@ def song_search(txt):
     # manipulate database
 
     try:
-        db = psycopg2.connect(database="nlpt", user="pol", password="poljunhyeok0625", host="nlpt.chrjlburyp5p.ap-southeast-2.rds.amazonaws.com", port="5432")
+        db = psycopg2.connect(database="nlpt")
         cur = db.cursor()
         if len(txt) == 0:	# if no song title was included, notify the user and exit the program
             returnString = "No title included"
@@ -101,7 +101,7 @@ def sunday_search(txt):
     # manipulate database
 
     try:
-        db = psycopg2.connect(database="nlpt", user="pol", password="poljunhyeok0625", host="nlpt.chrjlburyp5p.ap-southeast-2.rds.amazonaws.com", port="5432")
+        db = psycopg2.connect(database="nlpt")
         cur = db.cursor()
         if len(txt) == 0:   # if there was no date included as an argument
             returnString = "No date included"
@@ -111,7 +111,7 @@ def sunday_search(txt):
         else:
             insert = txt
             date = datetime.date.today()
-            date = date.replace(month = int(insert[3:5]), day = int(insert[0:2]))   # Store argument as a datetime form
+            date = date.replace(year = int('20' + insert[6:8]), month = int(insert[3:5]), day = int(insert[0:2]))   # Store argument as a datetime form
             
             if date.isoweekday() != 7:  # if the date is not a Sunday, notify the user and exit the program
                 returnString = f"{insert} is not a Sunday"
@@ -194,7 +194,7 @@ def member_search(txt):
     # manipulate database
 
     try: 
-        db = psycopg2.connect(database="nlpt", user="pol", password="poljunhyeok0625", host="nlpt.chrjlburyp5p.ap-southeast-2.rds.amazonaws.com", port="5432")
+        db = psycopg2.connect(database="nlpt")
         cur = db.cursor()
         if len(txt) == 1:	# if there was no argument included with the program, it notifies the user that there was no member included and exits
             returnString = "No Member included"
@@ -862,7 +862,7 @@ def artist_search(txt):
     db = None
 
     try:
-        db = psycopg2.connect(database="nlpt", user="pol", password="poljunhyeok0625", host="nlpt.chrjlburyp5p.ap-southeast-2.rds.amazonaws.com", port="5432")
+        db = psycopg2.connect(database="nlpt")
         cur = db.cursor()
         if len(txt) == 1:
             returnString = "No Artist included" # if there is no argument, notify the user that there was no input to search for an artist from the database
@@ -922,7 +922,7 @@ def roster_search(txt):
     month = Months[today.month] #String format of the Month -> January, February, etc..
 
     try:
-        db = psycopg2.connect(database="nlpt", user="pol", password="poljunhyeok0625", host="nlpt.chrjlburyp5p.ap-southeast-2.rds.amazonaws.com", port="5432")
+        db = psycopg2.connect(database="nlpt")
         cur = db.cursor()
         if len(txt) == 0:   # if there was no name included as an argument
             returnString = "No name included"
@@ -1003,7 +1003,7 @@ def show_sunday():
     returnString = "\n"
 
     try:
-        db = psycopg2.connect(database="nlpt", user="pol", password="poljunhyeok0625", host="nlpt.chrjlburyp5p.ap-southeast-2.rds.amazonaws.com", port="5432")
+        db = psycopg2.connect(database="nlpt")
         cur = db.cursor()
         cur.execute("SELECT date FROM Sundays GROUP BY date, sundays.id ORDER BY sundays.id")
         info = cur.fetchall()
@@ -1026,7 +1026,7 @@ def show_members():
     returnString = '\n'
     
     try:
-        db = psycopg2.connect(database="nlpt", user="pol", password="poljunhyeok0625", host="nlpt.chrjlburyp5p.ap-southeast-2.rds.amazonaws.com", port="5432")
+        db = psycopg2.connect(database="nlpt")
         cur = db.cursor()
         cur.execute("SELECT name, role FROM Members")
         info = cur.fetchall()
@@ -1056,7 +1056,7 @@ def month_roster_search(txt):
 
 
     try:
-        db = psycopg2.connect(database="nlpt", user="pol", password="poljunhyeok0625", host="nlpt.chrjlburyp5p.ap-southeast-2.rds.amazonaws.com", port="5432")
+        db = psycopg2.connect(database="nlpt")
         cur = db.cursor()
         today = datetime.date.today()
         if len(txt) == 0:   # if there was no month included as an argument
@@ -1152,7 +1152,7 @@ def month_roster_search(txt):
 def add_member(name, role):
     db = None
     try:
-        db = psycopg2.connect(database="nlpt", user="pol", password="poljunhyeok0625", host="nlpt.chrjlburyp5p.ap-southeast-2.rds.amazonaws.com", port="5432")
+        db = psycopg2.connect(database="nlpt")
         cur = db.cursor()
         cur.execute("SELECT MAX(ID) FROM Members")
         id = int(cur.fetchone()[0]) + 1
@@ -1184,7 +1184,7 @@ def add_sunday(date, sermon_title, passage, songs, artists):
         return returnString
     
     try:
-        db = psycopg2.connect(database="nlpt", user="pol", password="poljunhyeok0625", host="nlpt.chrjlburyp5p.ap-southeast-2.rds.amazonaws.com", port="5432")
+        db = psycopg2.connect(database="nlpt")
         cur = db.cursor()
         qry = f"SELECT * FROM Sundays WHERE date = '{date}'"
         cur.execute(qry)
@@ -1390,7 +1390,7 @@ def numWeeks(Month):
 
 def add_roster(month, song_leader1, song_leader2, vocal, guitar_1, guitar_2, keys, drum, pads):
     try:
-        db = psycopg2.connect(database="nlpt", user="pol", password="poljunhyeok0625", host="nlpt.chrjlburyp5p.ap-southeast-2.rds.amazonaws.com", port="5432")
+        db = psycopg2.connect(database="nlpt")
         cur = db.cursor()
         cur.execute("SELECT MAX(id) FROM Roster")
         id = cur.fetchone()[0]
@@ -1472,7 +1472,7 @@ def rewind():
     
     
     try:
-        db = psycopg2.connect(database="nlpt", user="pol", password="poljunhyeok0625", host="nlpt.chrjlburyp5p.ap-southeast-2.rds.amazonaws.com", port="5432")
+        db = psycopg2.connect(database="nlpt")
         cur = db.cursor()
         cur.execute("SELECT COUNT(songs), Sundays.date FROM Songs, Sundays WHERE Sundays.id = (SELECT max(id) FROM Sundays) GROUP BY Sundays.date")
         numSongs, last_commit = cur.fetchone()  # Fetch the number of song the praise team has done throughout the year and also the last Sunday the database was updated
@@ -1534,7 +1534,7 @@ def replace_song(date, song_title, r_title, r_artist):
         returnString = f"\n{date} is not a Sunday\n"
         return returnString
     try:
-        db = psycopg2.connect(database="nlpt", user="pol", password="poljunhyeok0625", host="nlpt.chrjlburyp5p.ap-southeast-2.rds.amazonaws.com", port="5432")
+        db = psycopg2.connect(database="nlpt")
         cur = db.cursor()
         qry = f"SELECT * FROM Sundays WHERE date = '{date}'"
         cur.execute(qry)
@@ -1611,7 +1611,7 @@ def add_song(date, r_title, r_artist):
         return returnString
 
     try:
-        db = psycopg2.connect(database="nlpt", user="pol", password="poljunhyeok0625", host="nlpt.chrjlburyp5p.ap-southeast-2.rds.amazonaws.com", port="5432")
+        db = psycopg2.connect(database="nlpt")
         cur = db.cursor()
         qry = f"SELECT * FROM Sundays WHERE date = '{date}'"
         cur.execute(qry)
@@ -1683,7 +1683,7 @@ def remove_song(date, r_title, r_artist):
         return returnString
 
     try:
-        db = psycopg2.connect(database="nlpt", user="pol", password="poljunhyeok0625", host="nlpt.chrjlburyp5p.ap-southeast-2.rds.amazonaws.com", port="5432")
+        db = psycopg2.connect(database="nlpt")
         cur = db.cursor()
         qry = f"SELECT * FROM Sundays WHERE date = '{date}'"
         cur.execute(qry)
@@ -1734,7 +1734,7 @@ def change_passage(date, passage):
     
     
     try:
-        db = psycopg2.connect(database="nlpt", user="pol", password="poljunhyeok0625", host="nlpt.chrjlburyp5p.ap-southeast-2.rds.amazonaws.com", port="5432")
+        db = psycopg2.connect(database="nlpt")
         cur = db.cursor()
         qry = f"UPDATE Sundays SET passage = '{passage}' WHERE date = '{date}'"
         cur.execute(qry)
@@ -1765,7 +1765,7 @@ def change_title(date, title):
     
     
     try:
-        db = psycopg2.connect(database="nlpt", user="pol", password="poljunhyeok0625", host="nlpt.chrjlburyp5p.ap-southeast-2.rds.amazonaws.com", port="5432")
+        db = psycopg2.connect(database="nlpt")
         cur = db.cursor()
         qry = f"UPDATE Sundays SET title = '{title}' WHERE date = '{date}'"
         cur.execute(qry)
@@ -1783,7 +1783,7 @@ def change_title(date, title):
 def remove_member(name, role):
     db = None
     try:
-        db = psycopg2.connect(database="nlpt", user="pol", password="poljunhyeok0625", host="nlpt.chrjlburyp5p.ap-southeast-2.rds.amazonaws.com", port="5432")
+        db = psycopg2.connect(database="nlpt")
         cur = db.cursor()
         cur.execute(f"UPDATE Members SET status = 0 WHERE name = '{name}' and role = '{role}'")
         db.commit()
