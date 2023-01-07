@@ -947,7 +947,8 @@ def roster_search(txt):
         qry = f"""
         SELECT id, song_leader1, song_leader2, vocal, guitar_1, guitar_2, keys, drum, pads 
         FROM roster where '{name}' in (song_leader1, song_leader2, vocal, guitar_1, guitar_2, keys, drum, pads) 
-        AND month = '{month}';
+        AND month = '{month}'
+        AND id >= {minID};
         """
         cur.execute(qry)
         info = cur.fetchall()
@@ -1084,6 +1085,7 @@ def month_roster_search(txt):
             day = d[8:10]
             
             first_sun = day + "." + month + "." + year
+            print(first_sun)
             qry = f"SELECT id FROM Sundays WHERE date = '{first_sun}'"
             cur.execute(qry)
             fID = cur.fetchone()[0]
@@ -1193,27 +1195,29 @@ def add_sunday(date, sermon_title, passage, songs, artists):
             returnString = f"Sunday data for the date {date} already exists\n"
             return returnString
         
-        # Below checks if a Sunday has been skipped
-        qry = "SELECT date FROM Sundays WHERE id = (SELECT max(id) FROM Sundays)"
-        cur.execute(qry)
-        last_sunday = cur.fetchone()
-        last_day = calendar.monthrange(year, month)[1]
-        d_compare = datetime.date(int('20'+last_sunday[0][6:8]), int(last_sunday[0][3:5]), int(last_sunday[0][0:2]))
-        change_day = int(last_sunday[0][0:2]) + 7
-        if change_day > last_day:
-            change_day = change_day - calendar.monthrange(year, month-1)[1]
-            if month != 12:
-                change_month = month + 1
-            else:
-                change_month = 12
-            d_compare = d_compare.replace(day = change_day, month = change_month)
-        else:
-            d_compare = d_compare.replace(day = change_day)
+        # # Below checks if a Sunday has been skipped
+        # qry = "SELECT date FROM Sundays WHERE id = (SELECT max(id) FROM Sundays)"
+        # cur.execute(qry)
+        # last_sunday = cur.fetchone()
+        # last_day = calendar.monthrange(year, month)[1]
+        # d_compare = datetime.date(int('20'+last_sunday[0][6:8]), int(last_sunday[0][3:5]), int(last_sunday[0][0:2]))
+        # change_day = int(last_sunday[0][0:2]) + 7
+        # print(d_compare)
+        # print(change_day)
+        # if change_day > last_day:
+        #     change_day = change_day - calendar.monthrange(year, month-1)[1]
+        #     if month != 12:
+        #         change_month = month + 1
+        #     else:
+        #         change_month = 12
+        #     d_compare = d_compare.replace(day = change_day, month = change_month)
+        # else:
+        #     d_compare = d_compare.replace(day = change_day)
     
-        # Exits the program if a Sunday has been skipped
-        if d_compare < d:
-            returnString = f"You have skipped a Sunday: {d_compare}\n"
-            return returnString
+        # # Exits the program if a Sunday has been skipped
+        # if d_compare < d:
+        #     returnString = f"You have skipped a Sunday: {d_compare}\n"
+        #     return returnString
             
     
         # Returns to the user the given date, sermon title and the sermon passage of the specific Sunday
