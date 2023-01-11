@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-    <html lang="en">
-    <head>
+      <html lang="en">
+      <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -10,8 +10,8 @@
         <!-- Css -->
         <link rel="stylesheet" href="{{ url_for('static',filename='bootstrap.css') }}">
         <link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}">
-    </head>
-    <body>
+      </head>
+      <body>
         <nav class="navbar navbar-default navbar-fixed-top">
             <div class="col-md-12">
             <div class="nav">
@@ -48,10 +48,7 @@
             <br>
             <br>
             <br> 
-            <h2 class="center">Enter Passcode</h2>
-            <pre width="80" style="height:50px;">Try Again
-         </pre>
-         <form role="form" method="POST" action="">
+            <h2 class="center">Enter Passcode</h2><form role="form" method="POST" action="">
                 <div class="row my-4">
                     <div class="pinBox">
                         <input class="pinEntry" name="token" type=text maxlength=4 autocomplete=off >
@@ -85,5 +82,5 @@
         <script src="{{url_for('static',filename='menu-color.js') }}"> </script>
         <script src="{{url_for('static',filename='modernizer.js') }}"> </script>
         <script src="{{url_for('static',filename='script.js') }}"> </script>
-    </body>
-</html>
+         </body>
+         </html>

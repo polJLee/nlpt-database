@@ -170,8 +170,12 @@ def month_sunday_search(txt):
         sList = sundays(st, today.year)
     returnString = '\n'
     for sunday in sList:
-        date = sunday[8:10] + '.' + sunday[5:7] + '.' + sunday[2:4]
-        returnString += sunday_search(date)
+        today = datetime.date.today().isoformat()   
+        if sunday > today:
+            break
+        else:
+            date = sunday[8:10] + '.' + sunday[5:7] + '.' + sunday[2:4]
+            returnString += sunday_search(date)
     return returnString    
 
 def member_search(txt):
@@ -903,7 +907,7 @@ def roster_search(txt):
 
     # Grab information related to the Month of the Roster
     Months = {1: "January",
-            2: "Februrary",
+            2: "February",
             3: "March",   #Good Friday
             4: "April",   #Good Friday
             5: "May",
@@ -1085,10 +1089,18 @@ def month_roster_search(txt):
             day = d[8:10]
             
             first_sun = day + "." + month + "." + year
-            print(first_sun)
+            # print(first_sun)
             qry = f"SELECT id FROM Sundays WHERE date = '{first_sun}'"
             cur.execute(qry)
-            fID = cur.fetchone()[0]
+            fID = cur.fetchone()
+            
+            if fID == None:
+                returnString = f"Roster has not been updated for {mth} {today.year}\n"
+                return returnString
+            else:    
+                fID = fID[0]
+            
+            
             
             qry = f"""
                 SELECT song_leader1, song_leader2, vocal, guitar_1, guitar_2, keys, drum, pads 
@@ -1360,7 +1372,7 @@ def numWeeks(Month):
         # Grab information related to the Month of the Roster
         Months = {
                 "January"   : 1,
-                "Februrary" : 2,
+                "February" : 2,
                 "March"     : 3,   #Good Friday
                 "April"     : 4,   #Good Friday
                 "May"       : 5,
@@ -1414,7 +1426,7 @@ def add_roster(month, song_leader1, song_leader2, vocal, guitar_1, guitar_2, key
         today = datetime.date.today()
         Months = {
                 "January"   : 1,
-                "Februrary" : 2,
+                "February" : 2,
                 "March"     : 3,   #Good Friday
                 "April"     : 4,   #Good Friday
                 "May"       : 5,

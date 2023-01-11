@@ -199,7 +199,7 @@ def sundays_post():
               <input type="text" name="sunday_search" size="50">
               <br>
               <br>
-              <a href="http://127.0.0.1:5000/sunday_result.html"
+              <a href="http://127.0.0.1:5000/sunday_result.html">
                 <button class="btn">Search</button>
               </a>
               
@@ -308,14 +308,14 @@ def sunday_result(searchResult):
             <h2 class="center">Sundays</h2>
             </a>
             <br>
-            <pre style="height:450px; width=200px;">"""
+            <pre style="height=450px; width=200px;">"""
    text2 = f"""{searchResult}
             </pre>
             <form method="POST">
               <input type="text" name="sunday_search" size="50">
               <br>
               <br>
-              <a href="http://127.0.0.1:5000/sunday_result.html"
+              <a href="http://127.0.0.1:5000/sunday_result.html">
                 <button class="btn">Search</button>
               </a>
               
@@ -452,6 +452,7 @@ def roster():
 
    if request.method == 'POST':
       txt = request.form.get('roster_search')
+      print(txt)
       if txt in Months or txt == 'all' or txt == 'All':
          searched_month = month_roster_search(txt)
          roster_result(searched_month)
@@ -515,14 +516,14 @@ def roster():
             <br>
             <br> 
             <h2 class="center">Roster</h2>
-            <pre style="height:450px; width=200px;">
+            <pre style="height=450px; width=200px;">
             """
    text2 = f"""{mthRoster}
             </pre>
             <form method= "POST">
                <input type="text" name="roster_search" size="50">
             <br>
-            <a href="http://127.0.0.1:5000/roster_result.html"
+            <a href="http://127.0.0.1:5000/roster_result.html">
                <button class="btn">Search</button>
             </a>
             
@@ -614,7 +615,7 @@ def roster_result(searchResult):
             <a href="http://127.0.0.1:5000/roster.html">
             <h2 class="center">Roster</h2>
             </a>
-            <pre style="height:450px; width=200px;">"""
+            <pre style="height=450px; width=200px;">"""
    text2 = f"""{searchResult}
             </pre>
             <br>
@@ -622,7 +623,7 @@ def roster_result(searchResult):
                <input type="text" name="roster_search" size="50">
             <br>
             <br>
-            <a href="http://127.0.0.1:5000/roster_result.html"
+            <a href="http://127.0.0.1:5000/roster_result.html">
                <button class="btn">Search</button>
             </a>
             
@@ -1287,7 +1288,7 @@ def add_month():
    if request.method == 'POST':
       Months = {
                 "January"   : 1,
-                "Februrary" : 2,
+                "February" : 2,
                 "March"     : 3,   #Good Friday
                 "April"     : 4,   #Good Friday
                 "May"       : 5,
@@ -1301,7 +1302,7 @@ def add_month():
                }
       print(request.form.get('mText'))
       numWeek = numWeeks(request.form.get('mText')) 
-      sundayList = sundays(Months[request.form.get('mText')], today.year)
+      sundayList = sundays(int(Months[request.form.get('mText')]), today.year)
       text1 = """<!DOCTYPE html>
       <html lang="en">
       <head>
