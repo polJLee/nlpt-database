@@ -1192,6 +1192,7 @@ def add_sunday(date, sermon_title, passage, songs, artists):
     month = int(date[3:5])
     year = int('20' + date[6:8])
     d = datetime.date(year, month, day) # change argument input into datetime format
+    sermon_title = sermon_title.replace("'", "''")
     
     if d.isoweekday() != 7:
         returnString = f"{date} is not a Sunday\n"
